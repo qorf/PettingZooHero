@@ -1,0 +1,31 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Button
+use Templates.PettingZooHero.Interface.Effects.ProjectileFireBehavior
+use Libraries.Game.Graphics.Color
+
+class FireButton is Button
+    
+constant integer DEFAULT_BUTTON_FONT_SIZE = 26
+    
+    boolean enabled = true
+    
+    on create
+ProjectileFireBehavior behavior
+        
+        Color color
+SetBackgroundColor(color:CustomColor(0.4, 0.7, 0.4, 1.0))
+                        SetFontSize(DEFAULT_BUTTON_FONT_SIZE)
+SetName("GO!")
+        SetBehavior(behavior)
+    end
+    
+    action SetEnabled(boolean enabled)
+        me:enabled = enabled
+    end
+    
+    action IsEnabled returns boolean
+        return enabled
+    end
+    
+end

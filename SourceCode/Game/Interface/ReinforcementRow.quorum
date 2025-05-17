@@ -1,0 +1,149 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Game.Graphics.Color
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Wave
+use Templates.PettingZooHero.Animal
+use Libraries.Interface.Layouts.Layout
+use Libraries.Interface.Events.FocusEvent
+
+class ReinforcementRow is Control, Layout
+    
+    Array<Reinforcement> reinforcements
+    
+    // If the last item focused before the reinforcement row was a cell in the animal area, track where it was.
+    // Use this to go back to the same cell we came from when using down arrow.
+    // If the value is -1, then the last focused element before this one wasn't a cell.
+    integer previousCellColumn = -1
+    
+    constant text helpText = "Use down arrow to return to the grid, or Tab keys to go directly to animals on the grid."
+    
+    on create
+        SetInputGroup("ReinforcementRow")
+SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+        SetLayout(me)
+        SetDescription(helpText)
+    end
+    
+action Create
+        // TO-DO: Remove this, for testing only
+        //ControlShaderView view
+        //view:Initialize()
+        //SetView2D(view)
+        //
+        //Color color
+        //SetBackgroundColor(color:CustomColor(0.6, 0.7, 0.6, 1))
+    end
+    
+    action UpdateAccessInfo
+        SetName(CalculateName())
+    end
+    
+    private action CalculateName returns text
+        text result = "Top of Grid, "
+        if reinforcements:IsEmpty()
+            result = result + "no animals coming next round."
+        elseif reinforcements:GetSize() = 1
+            result = result + "animal arriving in column " + reinforcements:Get(0):GetColumn() + " next turn."
+        else
+            result = result + "animals arriving in columns "
+            integer i = 0
+            repeat while i < reinforcements:GetSize()
+                Reinforcement current = reinforcements:Get(i)
+                if i < (reinforcements:GetSize() - 1)
+                    result = result + current:GetColumn() + ", "
+                else
+                    result = result + "and " + current:GetColumn() + " next turn."
+                end
+                i = i + 1
+            end
+        end
+        return result
+    end
+    
+    action LoadWave(Wave wave)
+        Empty()
+        Array<Animal> animals = wave:GetAnimals()
+        Array<integer> columns = wave:GetColumns()
+        
+        integer i = 0
+        repeat while i < animals:GetSize()
+            Reinforcement reinforce
+            reinforce:Create(columns:Get(i), animals:Get(i))
+            reinforcements:Add(reinforce)
+            Add(reinforce)
+            i = i + 1
+        end
+        
+        UpdateAccessInfo()
+    end
+    
+    action Empty
+        integer i = 0
+        repeat while i < reinforcements:GetSize()
+            Remove(reinforcements:Get(i))
+            i = i + 1
+        end
+        reinforcements:Empty()
+        
+        UpdateAccessInfo()
+    end
+    
+    action GetReinforcements returns Array<Reinforcement>
+        return reinforcements
+    end
+    
+    action GetAnimalArea returns AnimalArea
+        Item2D item = GetParent()
+        repeat until item = undefined or item is AnimalArea
+            item = item:GetParent()
+        end
+        return cast(AnimalArea, item)
+    end
+    
+action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        AnimalArea area = GetAnimalArea()
+        integer i = 0
+        repeat while i < reinforcements:GetSize()
+            Reinforcement reinforce = reinforcements:Get(i)
+            if reinforce:GetDefaultLayoutProperties():NeedsRendering()
+                reinforce:LoadGraphics(reinforce:GetDefaultLayoutProperties())
+            end
+            
+            integer column = reinforce:GetColumn()
+            // Get the first cell of the related column from the AnimalArea. We'll use this to figure out the X position we'll need.
+            AnimalAreaCell cell = area:GetCell(column, 0)
+            number centerX = cell:GetX() + cell:GetWidth() / 2.0
+            number centerY = GetHeight() / 2.0
+            reinforce:SetPosition(centerX - reinforce:GetWidth() / 2.0, centerY - reinforce:GetHeight() / 2.0)
+            i = i + 1
+        end
+        
+        i = 0
+        repeat while i < items:GetSize()
+            if items:Get(i) is Control
+                Control control = cast(Control, items:Get(i))
+                control:ResetLayoutFlag()
+            end
+            i = i + 1
+        end
+end
+    
+    action GainedFocus(FocusEvent event)
+        if event:GetLastFocus() is AnimalAreaCell
+            AnimalAreaCell cell = cast(AnimalAreaCell, event:GetLastFocus())
+            previousCellColumn = cell:GetGridX()
+        else
+            previousCellColumn = -1
+        end
+        parent:Control:GainedFocus(event)
+    end
+
+    action GetPreviousCellColumn returns integer
+        return previousCellColumn
+    end
+
+end

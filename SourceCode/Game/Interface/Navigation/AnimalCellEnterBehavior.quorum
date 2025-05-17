@@ -1,0 +1,16 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Interface.AnimalArea
+
+class AnimalCellEnterBehavior is GameBehavior
+    action Run(BehaviorEvent event)
+Application app = GetApplication()
+        InterfaceComponents components = app:GetInterfaceComponents()
+        AnimalArea area = components:GetAnimalArea()
+        area:GetCell(0, 0):Focus()
+    end
+end

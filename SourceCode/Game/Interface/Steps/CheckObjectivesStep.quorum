@@ -1,0 +1,21 @@
+package Templates.PettingZooHero.Interface.Steps
+
+use Templates.PettingZooHero.Application
+
+class CheckObjectivesStep is Step
+    action OnStart
+        Application app = GetApplication()
+        StepQueue steps = app:GetStepQueue()
+        if app:IsLevelLost()
+            steps:CancelQueuedSteps()
+            app:OnLevelLost()
+        elseif app:IsLevelWon()
+            steps:CancelQueuedSteps()
+            app:OnLevelComplete()
+        end
+    end
+    
+    action IsFinished returns boolean
+        return true
+    end
+end

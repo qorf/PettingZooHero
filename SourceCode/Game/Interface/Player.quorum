@@ -1,0 +1,84 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Game.Graphics.Drawable
+use Libraries.Compute.Vector2
+
+class Player is Drawable
+    
+    public constant number PLAYER_SPEED = 1500
+    
+    PlayerRowCell cell = undefined
+    boolean moving = false
+    
+    action Create
+        Load("Resources/Images/Player.png")
+    end
+
+    action GetCell returns PlayerRowCell
+        return cell
+    end
+
+    action SetCell(PlayerRowCell cell)
+        if moving = false
+            centerX = GetWidth() / 2.0
+            centerY = GetHeight() / 2.0
+            cellCenterX = cell:GetX() + cell:GetWidth() / 2.0
+            cellCenterY = cell:GetY() + cell:GetHeight() / 2.0
+            SetPosition(cellCenterX - centerX, cellCenterY - centerY)
+        end
+        me:cell = cell
+        
+        GetPlayerRow():UpdateAccessInfo()
+    end
+    
+    action MoveToCell(PlayerRowCell cell)
+        moving = true
+        SetCell(cell)
+    end
+
+    action IsMoving returns boolean
+        return moving
+    end
+    
+    action Update(number seconds)
+        if IsMoving()
+            number targetX = cell:GetX() + cell:GetWidth() / 2.0
+            number targetY = cell:GetY() + cell:GetHeight() / 2.0
+centerX = GetWidth() / 2.0
+            centerY = GetHeight() / 2.0
+            currentX = GetX() + centerX
+            currentY = GetY() + centerY
+            
+            Vector2 currentPosition
+            currentPosition:Set(currentX, currentY)
+            if currentPosition:Distance(targetX, targetY) < PLAYER_SPEED * seconds
+                SetPosition(targetX - centerX, targetY - centerY)
+                moving = false
+            else
+                Vector2 movement
+                movement:Set(targetX, targetY)
+                movement:Subtract(currentPosition)
+                movement:Normalize()
+                movement:Scale(PLAYER_SPEED * seconds)
+                Move(movement)
+            end
+        end
+    end
+    
+    action GetColumn returns integer
+        if cell not= undefined
+            return cell:GetColumn()
+        end
+        
+        return -1
+    end
+    
+    action GetPlayerRow returns PlayerRow
+        Item2D item = GetParent()
+        repeat until item is PlayerRow or item = undefined
+            item = item:GetParent()
+        end
+        return cast(PlayerRow, item)
+    end
+
+end

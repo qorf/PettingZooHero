@@ -1,0 +1,40 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Templates.PettingZooHero.Interface.AnimalDrawable
+
+class ProjectileWaypoint
+    number x = 0
+    number y = 0
+    AnimalDrawable animal = undefined
+    
+    action Set(number x, number y, AnimalDrawable animal)
+        me:x = x
+        me:y = y
+        me:animal = animal
+    end
+    
+    action GetX returns number
+        return x
+    end
+
+    action SetX(number x)
+        me:x = x
+    end
+
+    action GetY returns number
+        return y
+    end
+
+    action SetY(number y)
+        me:y = y
+    end
+
+    action GetAnimal returns AnimalDrawable
+        return animal
+    end
+
+    action SetAnimal(AnimalDrawable animal)
+        me:animal = animal
+    end
+
+end

@@ -1,0 +1,53 @@
+package Templates.PettingZooHero
+
+class Animal
+
+    text name = "Custom Animal"
+    text description = ""
+    text imageFile = ""
+
+    integer hp = 1
+    integer speed = 1
+
+    action GetName returns text
+        return name
+    end
+
+    action SetName(text name)
+        me:name = name
+    end
+
+    action GetDescription returns text
+        return description
+    end
+
+    action SetDescription(text description)
+        // TO-DO: If this is empty, generate a default from the HP and speed
+        me:description = description
+    end
+
+    action GetHP returns integer
+        return hp
+    end
+
+    action SetHP(integer hp)
+        me:hp = hp
+    end
+
+    action GetSpeed returns integer
+        return speed
+    end
+
+    action SetSpeed(integer speed)
+        me:speed = speed
+    end
+
+    action GetImageFile returns text
+        return imageFile
+    end
+
+    action SetImageFile(text imageFile)
+        me:imageFile = imageFile
+    end
+
+end

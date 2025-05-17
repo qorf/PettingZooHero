@@ -1,0 +1,11 @@
+package Templates.PettingZooHero.Interface.Effects
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Application
+
+class FirstLevelBehavior is GameBehavior
+    action Run(BehaviorEvent event)
+        Application app = GetApplication()
+        app:StartFirstLevel()
+        app:GetInterfaceComponents():RemoveEventBanner()
+    end
+end

@@ -1,0 +1,179 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+use Templates.PettingZooHero.Treat
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Interface.Layouts.Layout
+use Libraries.Game.Graphics.Color
+use Libraries.Game.Graphics.ColorGroup
+use Libraries.Containers.Array
+use Libraries.Interface.Events.FocusEvent
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Application
+
+class TreatOption is Icon, Layout
+    
+    Icon borders
+    Icon selectionBorders
+    
+    constant integer selectionBorderExtraThickness = 2
+    
+integer flavor = 1
+    integer push = 0
+    integer cost = 0
+    
+    text projectileFile = ""
+    
+    on create
+SetInputGroup("TreatsRow")
+        SetLayout(me)
+        SetFocusable(true)
+        
+        Color color
+        borders:SetBackgroundColor(color:CustomColor(1, 1, 1, 0))
+        SetBorderColor(color:Black())
+        
+        LayoutConstants constants
+        
+        selectionBorders:SetZ(constants:SELECTION_BOX_Z)
+        selectionBorders:SetBackgroundColor(color:CustomColor(1, 1, 1, 0))
+        selectionBorders:SetSelectionColor(color:CustomColor(1, 1, 1, 0))
+        selectionBorders:SetBorderColor(color:CustomColor(1, 1, 1, 0))
+        selectionBorders:SetSelectionBorderColor(color:CustomColor(0.5, 0.5, 1, 1))
+    end
+    
+    
+    action Load(Treat weapon)
+        SetName(weapon:GetName())
+        SetDescription(weapon:GetDescription())
+        
+        flavor = weapon:GetFlavor()
+        push = weapon:GetPush()
+        cost = weapon:GetCost()
+        projectileFile = weapon:GetProjectileFile()
+        
+        text imageFile = weapon:GetImageFile()
+        if imageFile = ""
+            imageFile = "Custom Weapon.png"
+        end
+        Load(GetResourcesPath() + imageFile)
+        
+        ControlShaderView view
+        view:Initialize()
+        borders:SetView2D(view)
+        Add(borders)
+        
+        ControlShaderView selectionView
+        selectionView:Initialize()
+        selectionBorders:SetView2D(selectionView)
+        Add(selectionBorders)
+    end
+    
+    action SetBorderColor(ColorGroup color)
+        borders:SetBorderColor(color)
+    end
+    
+    action GetBorderColor returns ColorGroup
+        return borders:GetBorderColor()
+    end
+    
+    action SetBorderThickness(number thickness)
+        borders:SetBorderThickness(thickness)
+        selectionBorders:SetBorderThickness(thickness + selectionBorderExtraThickness)
+    end
+    
+    action GetBorderThickness returns number
+        return borders:GetBorderThickness()
+    end
+    
+private action GetResourcesPath returns text
+        return "Resources/Images/"
+    end
+    
+    action GetStatsDescription returns text
+        return flavor + " flavor, " + push + " delay, " + cost + " cost."
+    end
+    
+action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        number borderThickness = GetBorderThickness()
+        borders:SetSize(containerWidth + 2 * borderThickness, containerHeight + 2 * borderThickness)
+        borders:SetPosition(-borderThickness, -borderThickness)
+        
+        selectionBorders:SetSize(borders:GetWidth() + selectionBorderExtraThickness, borders:GetHeight() + selectionBorderExtraThickness)
+        selectionBorders:SetPosition(borders:GetX() - selectionBorderExtraThickness / 2, borders:GetY() - selectionBorderExtraThickness / 2)
+        
+        integer i = 0
+        repeat while i < items:GetSize()
+            Item2D item = items:Get(i)
+            if item is Control
+                Control control = cast(Control, item)
+                control:ResetLayoutFlag()
+            end
+            i = i + 1
+        end
+end
+    
+    action GainedSelection
+        parent:Control:GainedSelection()
+        selectionBorders:GainedSelection()
+    end
+    
+    action LostSelection
+        parent:Control:LostSelection()
+        selectionBorders:LostSelection()
+    end
+    
+    action GainedFocus(FocusEvent event)
+        Select()
+        if selectionBorders:GetView2D() is ControlShaderView
+            ControlShaderView view = cast(ControlShaderView, selectionBorders:GetView2D())
+            view:GainedFocus(event)
+        end
+        parent:Control:GainedFocus(event)
+        
+        GameStateManager manager
+        Application app = cast(Application, manager:GetGame())
+        InterfaceComponents components = app:GetInterfaceComponents()
+        //components:GetDescriptionArea():SetDescriptionTarget(me)
+    end
+    
+    action LostFocus(FocusEvent event)
+if selectionBorders:GetView2D() is ControlShaderView
+            ControlShaderView view = cast(ControlShaderView, selectionBorders:GetView2D())
+            view:LostFocus(event)
+        end
+        parent:Control:LostFocus(event)
+    end
+    
+    action Select
+        TreatsRow row = GetTreatsRow()
+        if row not= undefined
+            row:SetSelectedTreat(me)
+        end
+    end
+    
+    action GetTreatsRow returns TreatsRow
+        Item2D parentItem = GetParent()
+        repeat until parentItem is TreatsRow or parentItem = undefined
+            parentItem = parentItem:GetParent()
+        end
+        return cast(TreatsRow, parentItem)
+    end
+    
+    action GetFlavor returns integer
+        return flavor
+    end
+
+    action GetPush returns integer
+        return push
+    end
+
+    action GetCost returns integer
+        return cost
+    end
+
+    action GetProjectileFile returns text
+        return projectileFile
+    end
+
+end

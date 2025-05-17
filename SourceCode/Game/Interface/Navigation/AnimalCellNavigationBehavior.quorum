@@ -1,0 +1,66 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Templates.PettingZooHero.Interface.AnimalArea
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Interface.PlayerRow
+use Templates.PettingZooHero.Interface.PlayerRowCell
+use Templates.PettingZooHero.Interface.ReinforcementRow
+
+class AnimalCellNavigationBehavior is GameBehavior
+    public constant integer LEFT = 1
+    public constant integer RIGHT = 2
+    public constant integer UP = 3
+    public constant integer DOWN = 4
+    
+    integer direction = LEFT
+    
+    action GetDirection returns integer
+        return direction
+    end
+
+    action SetDirection(integer direction)
+        me:direction = direction
+    end
+    
+    action Run(BehaviorEvent event)
+        AnimalAreaCell cell = cast(AnimalAreaCell, event:GetItem())
+        AnimalArea area = cell:GetAnimalArea()
+        integer cellX = cell:GetGridX()
+        integer cellY = cell:GetGridY()
+        if direction = LEFT
+            if cellX > 0
+                AnimalAreaCell newCell = area:GetCell(cellX - 1, cellY)
+                newCell:Focus()
+            end
+        elseif direction = RIGHT
+            if cellX < area:GetGridWidth() - 1
+                AnimalAreaCell newCell = area:GetCell(cellX + 1, cellY)
+                newCell:Focus()
+            end
+        elseif direction = UP
+            if cellY = area:GetGridHeight() - 1
+                ReinforcementRow row = area:GetReinforcementRow()
+                row:Focus()
+            else
+AnimalAreaCell newCell = area:GetCell(cellX, cellY + 1)
+                newCell:Focus()
+            end
+        elseif direction = DOWN
+            if cellY = 0
+                Application app = GetApplication()
+                InterfaceComponents components = app:GetInterfaceComponents()
+                PlayerRow row = components:GetPlayerRow()
+                PlayerRowCell playerCell = row:GetCell(cellX)
+                playerCell:Focus()
+            else
+AnimalAreaCell newCell = area:GetCell(cellX, cellY - 1)
+                newCell:Focus()
+            end
+        end
+    end
+
+end

@@ -1,0 +1,154 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Controls.Icon
+use Libraries.Interface.Layouts.Layout
+use Libraries.Containers.Array
+use Libraries.Game.Graphics.Color
+use Templates.PettingZooHero.Treat
+use Templates.PettingZooHero.Apple
+
+class TreatsRow is Icon, Layout
+    
+    number optionBorderThickness = 4
+    Color optionBorderColor
+    
+    Array<TreatOption> treats
+    
+    TreatOption selectedTreat = undefined
+    
+    constant text helpText = "Use left and right arrow to select a treat. Press space to throw. Use up arrow to return to the player row."
+    
+    on create
+        SetInputGroup("TreatsRow")
+        SetLayout(me)
+        
+        Color color
+        optionBorderColor = color:Black()
+        SetBackgroundColor(color:CustomColor(0.6, 0.6, 0.6, 0.6))
+        
+        SetFocusable(true)
+        SetName("Treats")
+        SetAccessibilityCode(parent:Item:CUSTOM)
+    end
+    
+    action UpdateAccessInfo
+        SetDescription(CalculateDescription())
+    end
+    
+    private action CalculateDescription returns text
+        text result = ""
+        if selectedTreat not= undefined
+            result = selectedTreat:GetName() + " selected, " + selectedTreat:GetStatsDescription() + " " + selectedTreat:GetDescription() + " "
+        end
+        
+        result = result + helpText
+        
+        return result
+    end
+    
+    action Create
+        // TO-DO: Remove this. Hardcoded value for testing
+        if IsLoaded() = false
+            Color color
+            LoadFilledRectangle(2, 2, GetBackgroundColor())
+        end
+    end
+    
+    action LoadTreats(Array<Treat> weaponArray)
+        // Clear any previously held treats from prior levels.
+        repeat until treats:IsEmpty()
+            Remove(treats:RemoveFromEnd())
+        end
+        
+        // If the level doesn't include any weapon options, always provide the default apple.
+        if weaponArray:IsEmpty()
+            Apple apple
+            weaponArray:Add(apple)
+        end
+        
+        integer i = 0
+        repeat while i < weaponArray:GetSize()
+            Treat weapon = weaponArray:Get(i)
+            TreatOption option
+            
+            option:SetBorderThickness(optionBorderThickness)
+            option:SetBorderColor(optionBorderColor)
+            option:Load(weapon)
+            treats:Add(option)
+            Add(option)
+            i = i + 1
+        end
+        
+        SetSelectedTreat(treats:Get(0))
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        number height = containerHeight - optionBorderThickness
+        number width = height
+        
+        // Calculate how much space it takes to place all weapons next to each other horizontally.
+        // Because options share inside borders, the total number of visible border edges is 1 left edge for every
+        // option, plus one additional right edge.
+        number availableIconWidth = containerWidth - (optionBorderThickness * (treats:GetSize() + 1))
+        // If there's not enough space for all icons horizontally, shrink all icons to fit.
+        if width * treats:GetSize() > availableIconWidth
+            width = cast(integer, availableIconWidth / treats:GetSize())
+            height = width
+        end
+        
+        number totalUsedWidth = (width + optionBorderThickness) * treats:GetSize() + optionBorderThickness
+        // The options use external borders, so adjust our x and y by one border thickness so the "inside" of the options are positioned where we want them.
+        number x = (containerWidth - totalUsedWidth) / 2.0 + optionBorderThickness
+        number y = (containerHeight - height) / 2.0
+        
+        integer i = 0
+        repeat while i < treats:GetSize()
+            TreatOption option = treats:Get(i)
+            option:SetSize(width, height)
+            option:SetPosition(x, y)
+            x = x + width + optionBorderThickness
+            i = i + 1
+        end
+        
+    end
+    
+    action GetSelectedTreat returns TreatOption
+        return selectedTreat
+    end
+
+    action SetSelectedTreat(TreatOption weapon)
+        if selectedTreat = weapon
+            return now
+        end
+        
+        if selectedTreat not= undefined
+selectedTreat:LostSelection()
+        end
+        
+        selectedTreat = weapon
+        
+        if selectedTreat not= undefined
+selectedTreat:GainedSelection()
+        end
+        
+        UpdateAccessInfo()
+    end
+    
+    action SelectPreviousTreat returns TreatOption
+        integer index = treats:GetFirstLocation(selectedTreat)
+        if index > 0
+            SetSelectedTreat(treats:Get(index - 1))
+        end
+        return selectedTreat
+    end
+    
+    action SelectNextTreat returns TreatOption
+        integer index = treats:GetFirstLocation(selectedTreat)
+        if index < treats:GetSize() - 1
+            SetSelectedTreat(treats:Get(index + 1))
+        end
+        return selectedTreat
+    end
+
+end

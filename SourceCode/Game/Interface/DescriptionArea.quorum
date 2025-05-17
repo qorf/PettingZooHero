@@ -1,0 +1,261 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Layouts.Layout
+use Libraries.Containers.Array
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Controls.Button
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.Font
+use Libraries.Game.Graphics.ColorGroup
+use Templates.PettingZooHero.Interface.Effects.ProjectileFireBehavior
+
+class DescriptionArea is Control, Layout
+    
+    Label nameLabel = undefined
+    Array<Label> detailLabels
+    Label descriptionLabel
+    FireButton fireButton
+    
+    constant integer DEFAULT_FONT_SIZE = 18
+    
+    Item2D descriptionTarget = undefined
+    
+    on create
+        SetLayout(me)
+        
+        Color color
+        SetBorderColor(color:Black())
+        SetBackgroundColor(color:CustomColor(0, 0, 0, 0.8))
+        SetBorderThickness(4)
+        SetCornerRounding(0.2, 0.2, 0.2, 0.2)
+        
+SetFontSize(DEFAULT_FONT_SIZE)
+        SetFontColor(color:White())
+        
+        nameLabel = CreateBoldLabel()
+        nameLabel:SetText("ITEM NAME")
+        Add(nameLabel)
+        
+        descriptionLabel:SetText("Select something to see information about it. This sample has enough text that it should wrap down to take two lines of text, roughly, give or take, maybe.")
+Add(descriptionLabel)
+        
+        Add(fireButton)
+        
+        UpdateLabels()
+    end
+    
+    action SetFontSize(integer size)
+        parent:Control:SetFontSize(size)
+        if nameLabel not= undefined
+            nameLabel:SetFontSize(size)
+        end
+        if descriptionLabel not= undefined
+            descriptionLabel:SetFontSize(size)
+        end
+        integer i = 0
+        repeat while i < detailLabels:GetSize()
+            detailLabels:Get(i):SetFontSize(size)
+            i = i + 1
+        end
+    end
+    
+    action SetFontColor(ColorGroup color)
+        parent:Control:SetFontColor(color)
+if nameLabel not= undefined
+            nameLabel:SetFontColor(color)
+        end
+        if descriptionLabel not= undefined
+            descriptionLabel:SetFontColor(color)
+        end
+        integer i = 0
+        repeat while i < detailLabels:GetSize()
+            detailLabels:Get(i):SetFontColor(color)
+            i = i + 1
+        end
+    end
+    
+    action Create
+        ControlShaderView view
+        view:Initialize()
+        SetView2D(view)
+    end
+    
+    action GetMinimumHeight returns number
+        LayoutConstants constants
+        if fireButton:GetDefaultLayoutProperties():NeedsRendering()
+            fireButton:LoadGraphics(fireButton:GetDefaultLayoutProperties())
+        end
+        if fireButton:NeedsLayout()
+            fireButton:Resize()
+        end
+        
+        number borders = 2 * GetBorderThickness()
+        number offsets = 5 * constants:QUARTER_SPACING
+        number fontRows = 3 * descriptionLabel:GetLineHeight() + nameLabel:GetLineHeight()
+        return fireButton:GetHeight() + borders + offsets + fontRows
+    end
+    
+    action SetDescriptionTarget(Item2D item)
+        descriptionTarget = item
+        UpdateLabels()
+    end
+    
+    private action UpdateLabels
+        repeat until detailLabels:IsEmpty()
+            Remove(detailLabels:RemoveFromEnd())
+        end
+        
+        if descriptionTarget is TreatOption
+            TreatOption weapon = cast(TreatOption, descriptionTarget)
+            nameLabel:SetText(weapon:GetName())
+            descriptionLabel:SetText(weapon:GetDescription())
+            
+            Label pushLabel = CreateItalicsLabel()
+            pushLabel:SetText("PUSH: " + weapon:GetPush())
+            detailLabels:Add(pushLabel)
+            Add(pushLabel)
+            
+            Label damageLabel = CreateItalicsLabel()
+            damageLabel:SetText("FLAVOR: " + weapon:GetFlavor())
+            detailLabels:Add(damageLabel)
+            Add(damageLabel)
+            
+            Label costLabel = CreateItalicsLabel()
+            costLabel:SetText("COST: " + weapon:GetCost())
+            detailLabels:Add(costLabel)
+            Add(costLabel)
+        elseif descriptionTarget is AnimalAreaCell or descriptionTarget is AnimalDrawable
+AnimalAreaCell cell = undefined
+            AnimalDrawable animal = undefined
+            if descriptionTarget is AnimalAreaCell
+cell = cast(AnimalAreaCell, descriptionTarget)
+                animal = cell:GetAnimal()
+            elseif descriptionTarget is AnimalDrawable
+                animal = cast(AnimalDrawable, descriptionTarget)
+            end
+            if animal = undefined
+                nameLabel:SetText("Play Area")
+                descriptionLabel:SetText("An empty cell at coordinates " + cell:GetGridX() + ", " + cell:GetGridY() + ". "
++ "Animals will move down on the grid every turn after you toss a treat.")
+            else
+                nameLabel:SetText(animal:GetName())
+                descriptionLabel:SetText(animal:GetDescription())
+                
+                Label hpLabel = CreateItalicsLabel()
+                hpLabel:SetText("FOOD: " + (animal:GetMaxHP() - animal:GetCurrentHP()) + " / " + animal:GetMaxHP())
+                detailLabels:Add(hpLabel)
+                Add(hpLabel)
+                
+                Label speedLabel = CreateItalicsLabel()
+                speedLabel:SetText("SPEED: " + animal:GetSpeed())
+                detailLabels:Add(speedLabel)
+                Add(speedLabel)
+            end
+        elseif descriptionTarget is HpBar
+            nameLabel:SetText("HP")
+            descriptionLabel:SetText("The HP bar shows how many animals can escape before you lose the level. Don't let too many escape!")
+        elseif descriptionTarget is EnergyBar
+            nameLabel:SetText("Budget")
+            descriptionLabel:SetText("Fancier treats cost money, and the petting zoo doesn't have a ton of that. You can't use a treat if it costs more than your remaining budget!")
+        else
+            text quote = ""
+            quote = quote:GetDoubleQuote()
+            nameLabel:SetText("HOW TO PLAY")
+            descriptionLabel:SetText("Click on a spot in the player row to position yourself, then select a treat from the bottom row and press " + quote
++ "GO" + quote + " to throw it to an animal in that column. Feed the animals before they escape!")
+        end
+        
+        RequestLayout()
+    end
+    
+    action GetDescriptionTarget returns Item2D
+        return descriptionTarget
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        LayoutConstants constants
+        number border = GetBorderThickness()
+        
+        number nameX = (containerWidth - nameLabel:GetWidth()) / 2.0
+        number nameY = containerHeight - constants:QUARTER_SPACING - border - nameLabel:GetLineHeight()
+        nameLabel:SetPosition(nameX, nameY)
+        
+        
+descriptionLabel:SetMaximumWidth(containerWidth - 2 * (constants:SPACING + border))
+number labelX = (containerWidth - descriptionLabel:GetWidth()) / 2.0
+        
+        if detailLabels:IsEmpty()
+        number labelY = nameLabel:GetY() - constants:QUARTER_SPACING - descriptionLabel:GetLineHeight()
+        descriptionLabel:SetPosition(labelX, labelY)
+        else
+            number detailY = nameLabel:GetY() - constants:QUARTER_SPACING - detailLabels:Get(0):GetLineHeight()
+            number leftBound = constants:SPACING + border
+            number totalWidth = containerWidth - 2 * leftBound
+            number labelArea = totalWidth / detailLabels:GetSize()
+            number x = leftBound
+            integer i = 0
+            repeat while i < detailLabels:GetSize()
+                Label label = detailLabels:Get(i)
+                number xOffset = (labelArea - label:GetWidth()) / 2.0
+                label:SetPosition(x + xOffset, detailY)
+                x = x + labelArea
+                i = i + 1
+            end
+            
+            number labelY = detailY - constants:QUARTER_SPACING - descriptionLabel:GetLineHeight()
+            descriptionLabel:SetPosition(labelX, labelY)
+        end
+        
+        
+if fireButton:GetDefaultLayoutProperties():NeedsRendering()
+            fireButton:LoadGraphics(fireButton:GetDefaultLayoutProperties())
+        end
+if fireButton:NeedsLayout()
+            fireButton:Resize()
+        end
+        fireButton:SetPosition((containerWidth - fireButton:GetWidth()) / 2.0, constants:QUARTER_SPACING + border)
+
+    end
+    
+    private action CreateBoldLabel returns Label
+        // TO-DO: Do something more sophisticated to get the best available bold font based on platform
+        check
+Label label
+        Font font
+        font:LoadFont("arialbd")
+        font:SetSize(GetFontSize())
+        label:SetFont(font)
+label:SetFontColor(GetFontColor())
+        return label
+        detect error
+            output "Error creating bold!"
+        end
+        
+        Label label
+        return label
+    end
+    
+private action CreateItalicsLabel returns Label
+        // TO-DO: Do something more sophisticated to get the best available bold font based on platform
+        check
+Label label
+        Font font
+        font:LoadFont("ariali")
+        font:SetSize(GetFontSize() - 3)
+        label:SetFont(font)
+label:SetFontColor(GetFontColor())
+        return label
+        detect error
+        end
+        
+        Label label
+        return label
+    end
+    
+    action GetFireButton returns FireButton
+        return fireButton
+    end
+
+end

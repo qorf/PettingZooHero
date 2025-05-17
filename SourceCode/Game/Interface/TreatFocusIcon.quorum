@@ -1,0 +1,9 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+
+class TreatFocusIcon is Icon
+    action IsRenderingFocus returns boolean
+        return GetParent() not= undefined and GetParent():IsFocused()
+    end
+end

@@ -1,0 +1,45 @@
+package Libraries.Templates.PettingZooHero.Interface
+
+use Libraries.Game.InputTable
+use Libraries.Game.InputSet
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Interface.Item
+use Libraries.Interface.Item2D
+
+class PassthroughInputTable is InputTable
+    
+    Item passthroughTarget = undefined
+
+    on create
+        SetIdentifier("PassthroughInput")
+    end
+
+    action HasKey(InputSet set) returns boolean
+        if passthroughTarget not= undefined and passthroughTarget:GetInputTable() not= undefined
+            return passthroughTarget:GetInputTable():HasKey(set)
+        end
+        return parent:InputTable:HasKey(set)
+    end
+
+    action ProcessInput(InputSet set, BehaviorEvent event) returns boolean
+        Item2D item = cast(Item2D, event:GetItem())
+        
+        if passthroughTarget not= undefined
+            InputTable table = passthroughTarget:GetInputTable()
+            BehaviorEvent newEvent = event:Copy()
+            newEvent:SetItem(passthroughTarget)
+            return table:ProcessInput(set, newEvent)
+        else
+            return parent:InputTable:ProcessInput(set, event)
+        end
+    end
+    
+    action GetPassthroughTarget returns Item
+        return passthroughTarget
+    end
+
+    action SetPassthroughTarget(Item passthroughTarget)
+        me:passthroughTarget = passthroughTarget
+    end
+
+end

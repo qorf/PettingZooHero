@@ -1,0 +1,149 @@
+package Templates.PettingZooHero.Interface
+
+use Templates.PettingZooHero.Application
+use Libraries.Containers.Array
+use Libraries.Interface.Controls.Control
+use Libraries.Game.GameStateManager
+use Libraries.Game.Game
+use Libraries.Game.Graphics.Color
+
+// A logical container for all of the different GUI components in the game.
+class InterfaceComponents
+    
+    
+HpBar hpBar
+        EnergyBar energyBar
+    TreatsRow treatsRow
+    DescriptionArea descriptionArea
+    LevelBanner levelBanner
+    PlayGrid playGrid
+    Background background
+    
+    EventBanner eventBanner = undefined
+    
+    action AddDefaultComponents(Application game)
+        LayoutConstants constants
+        
+game:Add(background)
+        
+        number minimumBarWidth = energyBar:GetMinimumWidth()
+        hpBar:Create(minimumBarWidth)
+        energyBar:Create(minimumBarWidth)
+        game:Add(hpBar)
+        game:Add(energyBar)
+        
+        treatsRow:Create()
+        game:Add(treatsRow)
+        
+        descriptionArea:Create()
+        game:Add(descriptionArea)
+        
+        levelBanner:Create()
+        game:Add(levelBanner)
+        
+        playGrid:Create()
+        game:Add(playGrid)
+        
+        SetupTabOrder()
+        
+        levelBanner:Focus()
+    end
+    
+    private action SetupTabOrder
+        Array<Control> tabOrder
+        tabOrder:Add(levelBanner)
+        tabOrder:Add(playGrid:GetAnimalArea())
+        tabOrder:Add(playGrid:GetPlayerRow())
+        tabOrder:Add(treatsRow)
+        tabOrder:Add(energyBar)
+        tabOrder:Add(hpBar)
+        
+        Control previousControl = tabOrder:GetFromEnd()
+        integer i = 0
+        repeat while i < tabOrder:GetSize()
+            Control control = tabOrder:Get(i)
+            control:SetPreviousFocus(previousControl)
+            previousControl:SetNextFocus(control)
+            previousControl = control
+            i = i + 1
+        end
+        
+        // Make sure elements that aren't part of the normal traversal order can flow into it, so focus doesn't get stuck.
+        GetFireButton():SetNextFocus(treatsRow)
+    end
+    
+    action GetHpBar returns HpBar
+        return hpBar
+    end
+
+    action GetEnergyBar returns EnergyBar
+        return energyBar
+    end
+
+    action GetTreatsRow returns TreatsRow
+        return treatsRow
+    end
+
+    action GetDescriptionArea returns DescriptionArea
+        return descriptionArea
+    end
+
+    action GetLevelBanner returns LevelBanner
+        return levelBanner
+    end
+
+    action GetPlayGrid returns PlayGrid
+        return playGrid
+    end
+
+    action GetBackground returns Background
+        return background
+    end
+    
+    action GetPlayerRow returns PlayerRow
+        return playGrid:GetPlayerRow()
+    end
+    
+    action GetAnimalArea returns AnimalArea
+        return playGrid:GetAnimalArea()
+    end
+    
+    action GetPlayer returns Player
+        return playGrid:GetPlayerRow():GetPlayer()
+    end
+    
+    action GetFireButton returns FireButton
+        return descriptionArea:GetFireButton()
+    end
+    
+    action GetReinforcementRow returns ReinforcementRow
+        return GetAnimalArea():GetReinforcementRow()
+    end
+
+    action GetEventBanner returns EventBanner
+        return eventBanner
+    end
+
+    action AddEventBanner(text title, text subtitle, Color backgroundColor, Color fontColor) returns EventBanner
+        GameStateManager manager
+        Game game = manager:GetGame()
+        RemoveEventBanner()
+        
+        EventBanner banner
+        eventBanner = banner
+        banner:Create(title, subtitle, backgroundColor, fontColor)
+        game:Add(banner)
+        
+        return banner
+    end
+    
+    action RemoveEventBanner
+        GameStateManager manager
+        Game game = manager:GetGame()
+        if eventBanner not= undefined
+            game:Remove(eventBanner)
+        end
+        eventBanner = undefined
+    end
+
+end

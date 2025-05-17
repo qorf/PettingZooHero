@@ -1,0 +1,52 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Interface.Item
+use Templates.PettingZooHero.Interface.TreatsRow
+use Templates.PettingZooHero.Interface.TreatOption
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+
+class TreatRowNavigateBehavior is GameBehavior
+    
+    public constant integer LEFT = 1
+    public constant integer RIGHT = 2
+    public constant integer UP = 3
+    integer direction = LEFT
+    
+    action Run(BehaviorEvent event)
+        if direction = UP
+            Application app = GetApplication()
+            InterfaceComponents components = app:GetInterfaceComponents()
+            components:GetPlayerRow():Focus()
+            return now
+        end
+        
+        Item item = event:GetItem()
+        TreatsRow row = undefined
+        TreatOption currentTreat = undefined
+        if item is TreatsRow
+            row = cast(TreatsRow, item)
+            currentTreat = row:GetSelectedTreat()
+        elseif item is TreatOption
+            currentTreat = cast(TreatOption, item)
+            row = currentTreat:GetTreatsRow()
+        end
+        
+        if direction = LEFT
+            row:SelectPreviousTreat()
+        elseif direction = RIGHT
+            row:SelectNextTreat()
+        end
+    end
+    
+    action GetDirection returns integer
+        return direction
+    end
+
+    action SetDirection(integer direction)
+        me:direction = direction
+    end
+
+end

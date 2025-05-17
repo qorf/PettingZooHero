@@ -1,0 +1,250 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.Drawable
+use Libraries.Game.Graphics.Font
+use Libraries.Game.Graphics.Texture
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Views.ControlShaderView
+
+class ResourceBar is Control
+    
+    Label nameLabel
+    Label amountLabel
+    Control barOutline
+    Drawable barFill
+    
+    integer borderThickness = 2
+    integer amountPadding = 1
+    
+    integer maximum = 3
+integer currentValue = maximum
+    
+    Color barColor
+    Color borderColor
+    Color nameLabelColor
+    Color amountLabelColor
+    
+    boolean created = false
+    
+    boolean showName = true
+    boolean showAmount = true
+    // If inverted, the bar starts empty when currentValue = maxValue, and fills as the current value decreases.
+    boolean inverted = false
+    
+    on create
+        borderColor:SetColor(0, 0, 0, 1)
+        barColor:SetColor(1, 1, 1, 1)
+        nameLabelColor:SetColor(1, 1, 1, 1)
+        amountLabelColor:SetColor(0, 0, 0, 1)
+        SetBackgroundColor(borderColor:CustomColor(1, 1, 1, 0.8))
+        
+        nameLabel:SetFontSize(30)
+        amountLabel:SetFontSize(22)
+nameLabel:SetPositionOnBaseLine(false)
+amountLabel:SetPositionOnBaseLine(false)
+        Add(barOutline)
+        Add(barFill)
+        Add(amountLabel)
+        Add(nameLabel)
+    end
+    
+    action SetName(text name)
+        nameLabel:SetText(name)
+        parent:Control:SetName(name)
+    end
+    
+    action SetNameFont(Font font)
+        nameLabel:SetFont(font)
+    end
+    
+    action GetNameFont returns Font
+        return nameLabel:GetFont()
+    end
+    
+    action SetAmountFont(Font font)
+        amountLabel:SetFont(font)
+    end
+    
+    action GetAmountFont returns Font
+        return amountLabel:GetFont()
+    end
+    
+    action SetNameFontSize(integer size)
+        nameLabel:SetFontSize(size)
+    end
+    
+    action GetNameFontSize returns integer
+        return nameLabel:GetFontSize()
+    end
+    
+    action SetAmountFontSize(integer size)
+        amountLabel:SetFontSize(size)
+    end
+    
+    action GetAmountFontSize returns integer
+        return amountLabel:GetFontSize()
+    end
+    
+    action GetMinimumWidth returns number
+        LayoutConstants constants
+        return nameLabel:GetWidth() + 2 * constants:SPACING
+    end
+    
+    action Create(number width)
+        integer barHeight = amountLabel:GetFont():GetLineHeight() + 2 * amountPadding + 2 * borderThickness
+        
+        if barOutline:GetView2D() = undefined
+            ControlShaderView view
+            view:Initialize()
+            barOutline:SetView2D(view)
+        end
+        
+        Color color
+        
+        if barFill:IsLoaded() = false
+            barFill:LoadFilledRectangle(cast(integer, width), barHeight - 2 * borderThickness, barColor)
+        end
+        
+        barOutline:SetSize(width, barHeight)
+        barOutline:SetBorderThickness(borderThickness)
+        barOutline:SetBorderColor(borderColor)
+        barOutline:SetBackgroundColor(GetBackgroundColor())
+        barFill:SetColor(barColor)
+        nameLabel:SetColor(nameLabelColor)
+        amountLabel:SetColor(amountLabelColor)
+        
+        UpdateAmounts(width)
+        
+        nameLabel:SetPosition(barOutline:GetWidth() / 2.0 - nameLabel:GetWidth() / 2.0, barOutline:GetHeight() + amountPadding)
+        if showName
+            nameLabel:Show()
+SetSize(width, nameLabel:GetY() + nameLabel:GetLineHeight())
+        else
+            nameLabel:Hide()
+            SetSize(width, barOutline:GetHeight())
+        end
+        
+        if showAmount
+            amountLabel:Show()
+        else
+            amountLabel:Hide()
+        end
+        created = true
+    end
+    
+    private action UpdateAmounts(number width)
+        integer targetValue = currentValue
+        if inverted
+            targetValue = maximum - currentValue
+        end
+number barHeight = barOutline:GetHeight()
+        
+barFill:SetSize(cast(number, targetValue) / maximum * (width - 2 * borderThickness), barHeight - 2 * borderThickness)
+        barFill:SetPosition(borderThickness, borderThickness)
+        
+        amountLabel:SetText(targetValue + " / " + maximum)
+        amountLabel:SetPosition(barOutline:GetWidth() / 2.0 - amountLabel:GetWidth() / 2.0, borderThickness + amountPadding)
+        amountLabel:ResetLayoutFlag()
+        
+        SetDescription(currentValue + " out of " + maximum)
+    end
+    
+    action SetBarColor(number red, number green, number blue, number alpha)
+        barColor:SetColor(red, green, blue, alpha)
+    end
+    
+    action SetBarColor(Color color)
+        barColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), color:GetAlpha())
+    end
+    
+    action GetBarColor returns Color
+        return barColor
+    end
+    
+action SetBarBorderColor(number red, number green, number blue, number alpha)
+        borderColor:SetColor(red, green, blue, alpha)
+    end
+    
+    action SetBarBorderColor(Color color)
+        borderColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), color:GetAlpha())
+    end
+    
+    action GetBarBorderColor returns Color
+        return borderColor
+    end
+    
+action SetNameLabelColor(Color color)
+        nameLabelColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), color:GetAlpha())
+    end
+    
+    action GetNameLabelColor returns Color
+        return nameLabelColor
+    end
+    
+action SetAmountLabelColor(Color color)
+        amountLabelColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), color:GetAlpha())
+    end
+    
+    action GetAmountLabelColor returns Color
+        return amountLabelColor
+    end
+    
+    action GetCurrentValue returns integer
+        return currentValue
+    end
+
+    action SetCurrentValue(integer currentValue)
+        me:currentValue = currentValue
+if created
+            UpdateAmounts(GetWidth())
+        end
+    end
+
+    action GetMaximum returns integer
+        return maximum
+    end
+
+    action SetMaximum(integer maximum)
+        me:maximum = maximum
+        if created
+            UpdateAmounts(GetWidth())
+        end
+    end
+
+    action SetShowName(boolean showName)
+        me:showName = showName
+        if created
+            Create(GetWidth())
+        end
+    end
+
+    action IsShowingName returns boolean
+        return showName
+    end
+
+    action IsInverted returns boolean
+        return inverted
+    end
+
+    action SetInverted(boolean inverted)
+        me:inverted = inverted
+    end
+
+    action IsShowingAmount returns boolean
+        return showAmount
+    end
+
+    action SetShowAmount(boolean showAmount)
+        me:showAmount = showAmount
+        if created
+            Create(GetWidth())
+        end
+    end
+    
+    action IsCreated returns boolean
+        return created
+    end
+
+end

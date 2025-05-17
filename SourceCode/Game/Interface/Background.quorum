@@ -1,0 +1,22 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+use Libraries.Game.Graphics.Texture
+
+class Background is Icon
+    
+    on create
+        LayoutConstants constants
+        SetZ(constants:BACKGROUND_Z)
+        SetHorizontalLayoutMode(parent:Control:MAINTAIN_ASPECT_RATIO)
+        SetVerticalLayoutMode(parent:Control:FILL)
+    end
+    
+action Load(Texture region, integer sourceX, integer sourceY, integer sourceWidth, integer sourceHeight)
+        parent:Icon:Load(region, sourceX, sourceY, sourceWidth, sourceHeight)
+        if GetWidth() > 0 and GetHeight() > 0
+            SetPercentageWidth(GetWidth() / GetHeight())
+        end
+    end
+    
+end

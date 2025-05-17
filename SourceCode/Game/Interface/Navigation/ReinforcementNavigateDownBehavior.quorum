@@ -1,0 +1,28 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Interface.ReinforcementRow
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Interface.AnimalArea
+
+class ReinforcementNavigateDownBehavior is GameBehavior
+    action Run(BehaviorEvent event)
+        ReinforcementRow row = cast(ReinforcementRow, event:GetItem())
+        integer column = row:GetPreviousCellColumn()
+        if column < 0
+            column = 0
+        end
+        
+        Application app = GetApplication()
+        InterfaceComponents components = app:GetInterfaceComponents()
+        AnimalArea area = components:GetAnimalArea()
+        if column >= area:GetGridWidth()
+            column = area:GetGridWidth() - 1
+        end
+        
+        area:GetCell(column, area:GetGridHeight() - 1):Focus()
+        
+    end
+end

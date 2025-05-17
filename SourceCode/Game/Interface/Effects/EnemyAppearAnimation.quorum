@@ -1,0 +1,65 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Libraries.Game.Graphics.Color
+
+class EnemyAppearAnimation is GameBehavior
+    
+AnimalDrawable enemy = undefined
+    
+    number fadeInTime = 0.4
+    number timer = 0.0
+    
+    number startY = 0
+    number endY = 0
+    
+    action Run(BehaviorEvent event)
+        enemy = cast(AnimalDrawable, event:GetItem())
+        AnimalAreaCell cell = enemy:GetCell()
+        
+        endY = enemy:GetY()
+        startY = endY + cell:GetHeight() * 0.75
+        enemy:SetY(startY)
+        
+        Color color = enemy:GetColor()
+        if color = undefined
+            Color transparent
+            transparent:SetColor(1, 1, 1, 0)
+            enemy:SetColor(transparent)
+        else
+            Color newColor
+            newColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), 0)
+            enemy:SetColor(newColor)
+        end
+    end
+    
+    action Update(number seconds)
+        timer = timer + seconds
+        number percent = timer / fadeInTime
+        if percent >= 1.0
+            Color color = enemy:GetColor()
+            color:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), 1)
+            enemy:SetColor(color)
+        else
+            number distance = (endY - startY) * percent
+            enemy:SetY(startY + distance)
+            Color color = enemy:GetColor()
+            if color = undefined
+                Color white
+                white:SetColor(1, 1, 1, percent)
+                enemy:SetColor(white)
+            else
+                Color newColor
+                newColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), percent)
+                enemy:SetColor(newColor)
+            end
+        end
+    end
+    
+    action IsFinished returns boolean
+        return timer >= fadeInTime
+    end
+    
+end

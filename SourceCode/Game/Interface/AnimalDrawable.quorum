@@ -1,0 +1,201 @@
+package Templates.PettingZooHero.Interface
+
+use Templates.PettingZooHero.Animal
+use Libraries.Game.Graphics.Drawable
+use Templates.PettingZooHero.Interface.Effects.Projectile
+use Templates.PettingZooHero.Interface.Effects.EnemyLeaveAnimation
+use Templates.PettingZooHero.Interface.Effects.EnemyMoveAnimation
+
+class AnimalDrawable is Drawable
+    
+    integer currentHP = 1
+    integer maxHP = 1
+    integer speed = 1
+    
+    boolean moving = false
+    
+    HungerBar hungerBar
+    number barPercentWidth = 0.7
+    
+    action Load(Animal enemy)
+        currentHP = enemy:GetHP()
+        maxHP = currentHP
+        speed = enemy:GetSpeed()
+        SetName(enemy:GetName())
+        SetDescription(enemy:GetDescription())
+        
+        text imageFile = enemy:GetImageFile()
+        if imageFile = ""
+            // Provide a default sprite if no image file is given.
+            imageFile = "Custom Enemy.png"
+        end
+        Load(GetResourcesPath() + imageFile)
+        
+        hungerBar:SetMaximum(maxHP)
+        hungerBar:SetCurrentValue(maxHP)
+        
+hungerBar:Create(GetWidth() * barPercentWidth)
+        hungerBar:SetPosition(GetWidth() * ((1 - barPercentWidth) / 2.0), 4)
+        Add(hungerBar)
+    end
+    
+    action SetSize(number width, number height)
+        parent:Drawable:SetSize(width, height)
+        
+        if hungerBar:IsCreated()
+hungerBar:Create(GetWidth() * barPercentWidth)
+        hungerBar:SetPosition(GetWidth() * ((1 - barPercentWidth) / 2.0), 4)
+        end
+
+    end
+    
+    action SetWidth(number width)
+        parent:Drawable:SetWidth(width)
+        
+        if hungerBar:IsCreated()
+hungerBar:Create(GetWidth() * barPercentWidth)
+        hungerBar:SetPosition(GetWidth() * ((1 - barPercentWidth) / 2.0), 4)
+        end
+    end
+    
+    action GetStatsText returns text
+        text result = ""
+        if CanEscape()
+            result = "Escapes next turn! "
+        end
+        return result + "Needs " + (currentHP) + " more food and moves " + speed + " spaces."
+    end
+    
+    private action GetResourcesPath returns text
+        return "Resources/Images/"
+    end
+    
+    action IsMoving returns boolean
+        return moving
+    end
+    
+    action Damage(Projectile projectile)
+        TreatOption treat = projectile:GetTreat()
+        integer damage = treat:GetFlavor()
+        integer push = treat:GetPush()
+        
+        currentHP = currentHP - damage
+        if currentHP > 0
+            Push(push)
+        else
+            EnemyLeaveAnimation leaveAnimation
+            AddBehavior(leaveAnimation)
+        end
+        
+        integer barValue = currentHP
+        if barValue < 0
+            barValue = 0
+        end
+        hungerBar:SetCurrentValue(barValue)
+    end
+    
+    action GetCell returns AnimalAreaCell
+        Item2D item = GetParent()
+        repeat until item = undefined or item is AnimalAreaCell
+            item = item:GetParent()
+        end
+        return cast(AnimalAreaCell, item)
+    end
+    
+action GetAnimalArea returns AnimalArea
+        Item2D item = GetParent()
+        repeat until item = undefined or item is AnimalArea
+            item = item:GetParent()
+        end
+        return cast(AnimalArea, item)
+    end
+    
+    action MoveTo(AnimalAreaCell cell)
+        AnimalAreaCell oldCell = GetCell()
+        number globalX = GetGlobalX()
+        number globalY = GetGlobalY()
+        number cellX = cell:GetGlobalX()
+        number cellY = cell:GetGlobalY()
+        GetCell():SetAnimal(undefined)
+        
+        SetPosition(globalX - cellX, globalY - cellY)
+        cell:SetAnimal(me)
+        
+        EnemyMoveAnimation moveAnimation
+        moveAnimation:SetSpeed(cell:GetHeight() / 0.4)
+        AddBehavior(moveAnimation)
+    end
+    
+    action MoveForward
+        AnimalAreaCell targetCell = undefined
+        AnimalArea area = GetAnimalArea()
+        integer startRow = GetGridY()
+        integer column = GetGridX()
+        integer i = 1
+        repeat while i <= speed and (startRow - i >= 0)
+            AnimalAreaCell candidate = area:GetCell(column, startRow - i)
+            if candidate:GetAnimal() = undefined
+                targetCell = candidate
+            end
+            i = i + 1
+        end
+        
+        if targetCell not= undefined
+            MoveTo(targetCell)
+        end
+    end
+    
+    action Push(integer amount)
+AnimalAreaCell targetCell = undefined
+        AnimalArea area = GetAnimalArea()
+        integer startRow = GetGridY()
+        integer column = GetGridX()
+        integer i = 1
+        repeat while i <= amount and (startRow + i < area:GetGridHeight())
+            AnimalAreaCell candidate = area:GetCell(column, startRow + i)
+            if candidate:GetAnimal() = undefined
+                targetCell = candidate
+            end
+            i = i + 1
+        end
+        
+        if targetCell not= undefined
+            MoveTo(targetCell)
+        end
+    end
+    
+    action CanEscape returns boolean
+        integer row = GetGridY()
+        return (row - speed) < 0
+    end
+    
+    action CanMoveForward returns boolean
+        integer row = GetGridY()
+        return row > 0
+    end
+    
+    action GetGridX returns integer
+        return GetCell():GetGridX()
+    end
+    
+    action GetGridY returns integer
+        return GetCell():GetGridY()
+    end
+    
+    action SetMoving(boolean moving)
+        me:moving = moving
+    end
+
+    action GetCurrentHP returns integer
+        return currentHP
+    end
+
+    action GetMaxHP returns integer
+        return maxHP
+    end
+
+    action GetSpeed returns integer
+        return speed
+    end
+
+end

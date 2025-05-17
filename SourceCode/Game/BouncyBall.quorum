@@ -1,0 +1,15 @@
+package Templates.PettingZooHero
+
+class BouncyBall is Treat
+
+    on create
+        SetName("Bouncy Ball")
+        SetDescription("Playtime! A big, bouncy ball won't feed an animal, but it'll delay it 3 spaces.")
+        SetImageFile("Bouncy Ball.png")
+
+        SetFlavor(0)
+        SetPush(3)
+        SetCost(1)
+    end
+
+end

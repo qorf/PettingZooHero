@@ -1,0 +1,48 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+use Libraries.Game.Graphics.Color
+use Libraries.Game.Graphics.Texture
+use Libraries.Game.Graphics.PixelMap
+use Libraries.Game.Graphics.Format
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Interface.Events.FocusEvent
+
+class Cell is Icon
+    
+    on create
+        LayoutConstants constants
+        SetZ(constants:CELL_Z)
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+    end
+    
+    action Load(integer width, integer height, integer borderThickness)
+        if GetView2D() = undefined
+            ControlShaderView view
+            view:Initialize()
+            SetView2D(view)
+        end
+        
+        SetSize(width, height)
+        SetBorderThickness(borderThickness)
+        
+        Color color
+        SetBackgroundColor(color:CustomColor(1, 1, 1, 0))
+        SetBorderColor(color:White())
+        SetFocusBorderColor(color:Orange())
+    end
+    
+    action GainedFocus(FocusEvent event)
+        LayoutConstants constants
+        SetZ(constants:CELL_FOCUS_Z)
+        parent:Icon:GainedFocus(event)
+    end
+    
+    action LostFocus(FocusEvent event)
+        LayoutConstants constants
+        SetZ(constants:CELL_Z)
+        parent:Icon:LostFocus(event)
+    end
+    
+end

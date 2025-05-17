@@ -1,0 +1,30 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Game.FocusManager
+use Libraries.Interface.Item
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Application
+use Libraries.Interface.Item2D
+
+class DescriptionFocusManager is FocusManager
+    
+    GameStateManager manager
+    
+    action SetFocus(Item item)
+        parent:FocusManager:SetFocus(item)
+        
+        // The item might not be the same thing after the parent processes the event.
+        item = GetFocus()
+        if item not= undefined and item is Item2D
+            Item2D item2D = cast(Item2D, item)
+            check
+Application app = cast(Application, manager:GetGame())
+        app:GetInterfaceComponents():GetDescriptionArea():SetDescriptionTarget(item2D)
+            detect error
+                // Do nothing, just fail silently.
+            end
+        end
+        
+    end
+    
+end

@@ -1,0 +1,52 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+use Templates.PettingZooHero.Animal
+
+class Reinforcement is Icon
+    
+    integer column = -1
+    Animal animal = undefined
+    
+    number blinkTimer = 0
+    number showTime = 0.6
+    number hideTime = 0.5
+    
+    action Create(integer column, Animal animal)
+        me:column = column
+        me:animal = animal
+        Load(GetResourcesPath() + GetIconFile())
+    end
+    
+    action Update(number seconds)
+        blinkTimer = blinkTimer + seconds
+        if IsShowing()
+            if blinkTimer > showTime
+                blinkTimer = blinkTimer - showTime
+                Hide()
+            end
+        else
+            if blinkTimer > hideTime
+                blinkTimer = blinkTimer - hideTime
+                Show()
+            end
+        end
+    end
+    
+private action GetResourcesPath returns text
+        return "Resources/Images/"
+    end
+    
+    action GetIconFile returns text
+        return "Warning.png"
+    end
+    
+    action GetColumn returns integer
+        return column
+    end
+
+    action GetAnimal returns Animal
+        return animal
+    end
+
+end

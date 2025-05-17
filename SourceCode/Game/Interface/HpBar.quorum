@@ -1,0 +1,10 @@
+package Templates.PettingZooHero.Interface
+
+class HpBar is ResourceBar
+    on create
+        SetBarColor(1, 0, 0, 1)
+        SetName("HP")
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+    end
+end

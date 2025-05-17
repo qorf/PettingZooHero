@@ -1,0 +1,132 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Layouts.Layout
+use Libraries.Containers.Array
+
+class AnimalAreaCell is Cell, Layout
+    
+    AnimalDrawable enemy = undefined
+    integer gridX = -1
+    integer gridY = -1
+    
+    on create
+        SetInputGroup("AnimalAreaCell")
+        SetLayout(me)
+    end
+    
+    action UpdateAccessInfo
+        SetName(CalculateName())
+        SetDescription(CalculateDescription())
+    end
+    
+    private action CalculateName returns text
+        text result = "Empty"
+        if enemy not= undefined
+            result = enemy:GetName()
+        end
+        
+        result = result + " at coords " + gridX + ", " + gridY + ". "
+        if enemy not= undefined
+            result = result + enemy:GetStatsText() + " " + enemy:GetDescription()
+        end
+        return result
+    end
+    
+    private action CalculateDescription returns text
+        if GetAnimalArea() = undefined
+            return ""
+        end
+        
+        text result = "Press the arrow keys to navigate the cells."
+        if IsTopCell() and IsBottomCell()
+            result = "Press down arrow to go to the player row, or press up arrow to see incoming animals for the next round. Use left and right arrow to navigate the cells."
+        elseif IsBottomCell()
+            result = "Press down arrow to go to the player row, and use the other arrows to navigate the cells."
+        elseif IsTopCell()
+            result = "Press up arrow to see incoming animals for the next round, or use the other arrows to navigate the cells."
+        end
+        
+        result = result + " Press Tab or Shift Tab to jump to cells with animals, and press Escape to return to the Grid Area."
+        return result
+    end
+    
+    action GetAnimal returns AnimalDrawable
+        return enemy
+    end
+
+    action SetAnimal(AnimalDrawable newEnemy)
+        if enemy = newEnemy
+            return now
+        end
+        if enemy not= undefined
+            Remove(enemy)
+        end
+        if newEnemy not= undefined
+            Add(newEnemy)
+        end
+        
+        enemy = newEnemy
+        
+        UpdateAccessInfo()
+    end
+    
+action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        if enemy not= undefined
+            enemy:SetSize(containerWidth, containerHeight)
+            if enemy:IsMoving() = false
+                number centerX = enemy:GetWidth() / 2.0
+                number centerY = enemy:GetHeight() / 2.0
+                number cellCenterX = GetWidth() / 2.0
+                number cellCenterY = GetHeight() / 2.0
+                enemy:SetPosition(cellCenterX - centerX, cellCenterY - centerY)
+            end
+        end
+        
+        integer i = 0
+        repeat while i < items:GetSize()
+            Item2D item = items:Get(i)
+            if item is Control
+                Control control = cast(Control, item)
+                control:ResetLayoutFlag()
+            end
+            i = i + 1
+        end
+end
+
+    action GetGridX returns integer
+        return gridX
+    end
+    
+    action SetGridX(integer x)
+        gridX = x
+        
+UpdateAccessInfo()
+    end
+    
+    action GetGridY returns integer
+        return gridY
+    end
+    
+    action SetGridY(integer y)
+        gridY = y
+        
+UpdateAccessInfo()
+    end
+    
+    action GetAnimalArea returns AnimalArea
+        Item2D item = me
+        repeat until item is AnimalArea or item = undefined
+            item = item:GetParent()
+        end
+        return cast(AnimalArea, item)
+    end
+    
+    action IsTopCell returns boolean
+        return (gridY = GetAnimalArea():GetGridHeight() - 1)
+    end
+    
+    action IsBottomCell returns boolean
+        return gridY = 0
+    end
+
+end

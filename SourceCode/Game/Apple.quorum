@@ -1,0 +1,15 @@
+package Templates.PettingZooHero
+
+class Apple is Treat
+
+    on create
+        SetName("Apple")
+        SetDescription("A reliable snack! An apple sates 1 hunger and delays 1 space, and it costs nothing to toss.")
+        SetImageFile("Apple.png")
+
+        SetFlavor(1)
+        SetPush(1)
+        SetCost(0)
+    end
+
+end

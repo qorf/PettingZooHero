@@ -1,0 +1,85 @@
+package Templates.PettingZooHero
+
+class Treat
+
+    text name = "Custom Treat"
+    text description = ""
+    text imageFile = ""
+    text projectileFile = ""
+
+    integer flavor = 1
+    integer push = 0
+    integer cost = 0
+
+    /*
+    The treat class provides a template for ways the player can attack. It has a number of properties that can be set to produce different (possibly wacky) results:
+        * Flavor (How much it fills an animal's hunger meter)
+        * Push (How many tiles backwards the enemy is shoved)
+        * Targets (How many enemies does the weapon pass through, or how many times does it bounce if bounce is enabled)
+        * Extra Left-Columns (how many extra columns does this shoot, to the left of the current column)
+        * Extra Right-Columns (how many extra columns does this shoot, to the right of the current column)
+        * Shoots in Column (boolean, on by default. Turn off to make this weapon not shoot in the ship's column)
+        * Shoots diagonal left (boolean, off by default. Turn on to make this weapon shoot a projectile diagonally left from ship)
+        * Shoots diagonal right (same as above, but right instead of left)
+        * Bounce (boolean, off by default. Turn on to make projectile bounce in a new direction after each hit. Diagonal shots always bounce the opposite X direction. Straight shots bounce left or right, or left/right goes up)
+        * Cost (How much energy does it cost to use the weapon)
+    */
+
+    action GetFlavor returns integer
+        return flavor
+    end
+
+    action SetFlavor(integer flavor)
+        me:flavor = flavor
+    end
+
+    action GetPush returns integer
+        return push
+    end
+
+    action SetPush(integer push)
+        me:push = push
+    end
+
+    action GetCost returns integer
+        return cost
+    end
+
+    action SetCost(integer cost)
+        me:cost = cost
+    end
+
+    action GetName returns text
+        return name
+    end
+
+    action SetName(text name)
+        me:name = name
+    end
+
+    action GetDescription returns text
+        // TO-DO: If this is empty, generate a basic description including damage, push, cost, and other properties.
+        return description
+    end
+
+    action SetDescription(text description)
+        me:description = description
+    end
+
+    action GetImageFile returns text
+        return imageFile
+    end
+
+    action SetImageFile(text imageFile)
+        me:imageFile = imageFile
+    end
+
+    action GetProjectileFile returns text
+        return projectileFile
+    end
+
+    action SetProjectileFile(text projectileFile)
+        me:projectileFile = projectileFile
+    end
+
+end

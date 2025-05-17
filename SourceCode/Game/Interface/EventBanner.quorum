@@ -1,0 +1,55 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Layouts.Layout
+use Libraries.Interface.Controls.Icon
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.Color
+use Libraries.Containers.Array
+
+class EventBanner is Icon, Layout
+    
+Label mainLabel
+    Label subLabel
+    
+    on create
+        SetLayout(me)
+        
+        mainLabel:SetFontSize(64)
+        mainLabel:SetPositionOnBaseLine(false)
+        Add(mainLabel)
+        
+        subLabel:SetFontSize(40)
+        subLabel:SetPositionOnBaseLine(false)
+        Add(subLabel)
+        
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+    end
+    
+    action Create(text title, text subtitle, Color backgroundColor, Color fontColor)
+        mainLabel:SetText(title)
+        SetName(title)
+        subLabel:SetText(subtitle)
+        SetDescription(subtitle)
+        
+        mainLabel:SetColor(fontColor)
+        subLabel:SetColor(fontColor)
+        
+        LoadFilledRectangle(2, 2, backgroundColor)
+    end
+    
+action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        LayoutConstants constants
+        mainLabel:SetMaximumWidth(containerWidth - 2 * constants:SPACING)
+        subLabel:SetMaximumWidth(containerWidth - 2 * constants:SPACING)
+        
+        // Set the banner height to reflect the height of the label. Needed because the label could take multiple lines.
+        SetHeight(3 * constants:SPACING + mainLabel:GetHeight() + subLabel:GetHeight())
+        containerHeight = GetHeight()
+        
+        mainLabel:SetPosition((containerWidth - mainLabel:GetWidth()) / 2.0, containerHeight - constants:SPACING - mainLabel:GetLineHeight())
+        subLabel:SetPosition((containerWidth - subLabel:GetWidth()) / 2.0, constants:SPACING + subLabel:GetHeight() - subLabel:GetLineHeight())
+    end
+    
+end

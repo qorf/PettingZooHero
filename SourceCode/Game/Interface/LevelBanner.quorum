@@ -1,0 +1,74 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Icon
+use Libraries.Game.Graphics.Label
+use Libraries.Game.Graphics.Color
+use Libraries.Interface.Layouts.Layout
+use Libraries.Containers.Array
+
+class LevelBanner is Icon, Layout
+    
+    Label label
+    
+    on create
+        SetLayout(me)
+        
+        Color color
+        label:SetColor(color:White())
+        label:SetText("LEVEL 0: Defeat X more enemies to clear")
+        label:SetFontSize(32)
+        label:SetPositionOnBaseLine(false)
+        Add(label)
+        
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+        
+        text helpText = "Use tab keys to navigate game elements."
+        SetDescription(helpText)
+    end
+    
+    action Create
+        Color color
+        LoadFilledRectangle(2, 2, color:DarkGray())
+    end
+    
+    action UpdateLevelInfo(integer levelNumber, integer kills, integer turns)
+        text start = "LEVEL " + levelNumber + ": "
+        text objectives = ""
+        text enemyText = "animals"
+        if kills = 1
+            enemyText = "animal"
+        end
+        text turnText = "turns"
+        if turns = 1
+            turnText = "turn"
+        end
+        
+        if kills > 0
+            if turns > 0
+                objectives = "Stop " + kills + " " + enemyText + " and finish " + turns + " " + turnText + " to win"
+            else
+                objectives = "Stop " + kills + " more " + enemyText + " to win"
+            end
+        elseif turns > 0
+            objectives = "Finish " + turns + " more " + turnText + " to win"
+        else
+            objectives = "COMPLETE!"
+        end
+        
+        SetName(start + objectives)
+        label:SetText(start + objectives)
+        Resize()
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        LayoutConstants constants
+        label:SetMaximumWidth(containerWidth - 2 * constants:SPACING)
+        
+        // Set the banner height to reflect the height of the label. Needed because the label could take multiple lines.
+        SetHeight(2 * constants:SPACING + label:GetHeight())
+        containerHeight = GetHeight()
+        
+        label:SetPosition((containerWidth - label:GetWidth()) / 2.0, containerHeight - constants:SPACING - label:GetLineHeight())
+    end
+end

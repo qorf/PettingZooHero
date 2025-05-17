@@ -1,0 +1,54 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Libraries.Compute.Vector2
+
+class EnemyMoveAnimation is GameBehavior
+    
+    AnimalDrawable enemy = undefined
+    number speed = 400
+    boolean finished = false
+    
+    action Run(BehaviorEvent event)
+        enemy = cast(AnimalDrawable, event:GetItem())
+        enemy:SetMoving(true)
+    end
+    
+    action Update(number seconds)
+        AnimalAreaCell cell = enemy:GetCell()
+        number targetX = cell:GetWidth() / 2.0
+        number targetY = cell:GetHeight() / 2.0
+        number enemyX = enemy:GetX() + enemy:GetWidth() / 2.0
+        number enemyY = enemy:GetY() + enemy:GetHeight() / 2.0
+        number moveSpeed = speed * seconds
+        
+        Vector2 movement
+        movement:Set(targetX, targetY)
+        if movement:Distance(enemyX, enemyY) <= moveSpeed
+            enemy:SetCenter(targetX, targetY)
+            enemy:SetMoving(false)
+            finished = true
+        else
+            movement:Subtract(enemyX, enemyY)
+            movement:Normalize()
+            movement:Scale(moveSpeed)
+            enemy:Move(movement)
+        end
+        
+    end
+    
+    action IsFinished returns boolean
+        return finished
+    end
+    
+    action GetSpeed returns number
+        return speed
+    end
+
+    action SetSpeed(number speed)
+        me:speed = speed
+    end
+
+end

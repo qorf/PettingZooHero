@@ -1,0 +1,202 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Game.Graphics.Color
+use Libraries.Containers.Array
+use Libraries.Interface.Layouts.Layout
+use Templates.PettingZooHero.Animal
+use Templates.PettingZooHero.Interface.Effects.EnemyAppearAnimation
+
+class AnimalArea is Control, Layout, PlayGridElement
+    
+    // Two-dimensional array for the cells. Cells are stored as arrays of columns (i.e., access first by X, then Y)
+    Array<Array<AnimalAreaCell>> cellTable
+    
+    boolean cellsNeedLoad = false
+    integer lastCellWidth = 0
+    integer lastCellHeight = 0
+    
+    ReinforcementRow leftColumnReinforce
+    ReinforcementRow rightColumnReinforce
+    ReinforcementRow topRowReinforce
+    
+    constant text helpText = "Press enter to inspect the cells, or use the tab keys to navigate to other elements."
+    
+    on create
+        SetInputGroup("AnimalArea")
+        SetLayout(me)
+        Add(leftColumnReinforce)
+        Add(rightColumnReinforce)
+        Add(topRowReinforce)
+        
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+        SetName("Animal Grid")
+    end
+    
+    action GetDescription returns text
+        integer animalCount = 0
+        integer reinforcements = topRowReinforce:GetReinforcements():GetSize()
+        text animalText = "animals"
+        if animalCount = 1
+            animalText = "animal"
+        end
+        
+        text result = animalCount + " " + animalText
+        if reinforcements > 0
+            result = result + ", plus " + reinforcements + " more arriving next turn. "
+        else
+            result = result + ". "
+        end
+        
+        result = result + helpText
+        
+        return result
+    end
+    
+    action SetCellCount(integer gridWidth, integer gridHeight)
+        if gridWidth = GetGridWidth() and gridHeight = GetGridHeight()
+            return now
+        end
+        
+        repeat until cellTable:IsEmpty()
+            Array<AnimalAreaCell> column = cellTable:RemoveFromEnd()
+            integer i = 0
+            repeat while i < column:GetSize()
+                Remove(column:Get(i))
+                i = i + 1
+            end
+        end
+        
+        integer x = 0
+        repeat until cellTable:GetSize() = gridWidth
+integer y = 0
+            Array<AnimalAreaCell> column
+            cellTable:Add(column)
+            repeat until column:GetSize() = gridHeight
+                AnimalAreaCell cell
+                column:Add(cell)
+                cell:SetGridX(x)
+                cell:SetGridY(y)
+                Add(cell)
+                
+                y = y + 1
+            end
+            x = x + 1
+        end
+        
+        cellsNeedLoad = true
+    end
+    
+    action GetGridWidth returns integer
+        return cellTable:GetSize()
+    end
+    
+    action GetGridHeight returns integer
+        if cellTable:IsEmpty()
+            return 0
+        end
+        
+        return cellTable:GetFromFront():GetSize()
+    end
+    
+action Create
+        // TO-DO: Remove this, for testing only
+        ControlShaderView view
+        view:Initialize()
+        SetView2D(view)
+        
+        Color color
+SetBackgroundColor(color:CustomColor(0.2, 0.2, 0.2, 0.5))
+        
+        topRowReinforce:Create()
+        leftColumnReinforce:Create()
+        rightColumnReinforce:Create()
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+PlayGrid grid = GetPlayGrid()
+        
+        cellsNeedLoad = cellsNeedLoad or (grid:GetCellWidth() not= lastCellWidth or grid:GetCellHeight() not= lastCellHeight)
+        
+            integer x = 0
+        repeat while x < GetGridWidth()
+                Array<AnimalAreaCell> column = cellTable:Get(x)
+                integer y = 0
+                repeat while y < GetGridHeight()
+                    AnimalAreaCell cell = column:Get(y)
+                if cellsNeedLoad
+cell:Load(grid:GetCellWidth() + grid:GetCellBorderThickness(), grid:GetCellHeight() + grid:GetCellBorderThickness(), grid:GetCellBorderThickness())
+                end
+                cell:SetPosition(x * grid:GetCellWidth(), y * grid:GetCellHeight())
+                cell:ResetLayoutFlag()
+                    y = y + 1
+                end
+            x = x + 1
+        end
+        
+        leftColumnReinforce:SetSize(grid:GetCellWidth() / 2, containerHeight)
+        rightColumnReinforce:SetSize(leftColumnReinforce:GetWidth(), leftColumnReinforce:GetHeight())
+        topRowReinforce:SetSize(containerWidth, grid:GetCellHeight() / 2)
+        
+        leftColumnReinforce:SetPosition(-leftColumnReinforce:GetWidth(), 0)
+        rightColumnReinforce:SetPosition(containerWidth, 0)
+        topRowReinforce:SetPosition(0, containerHeight)
+        
+            cellsNeedLoad = false
+    end
+    
+    action GetCell(integer x, integer y) returns AnimalAreaCell
+        return cellTable:Get(x):Get(y)
+    end
+    
+    action LoadStartingAnimals(Array<Array<Animal>> enemyColumns)
+        integer x = 0
+        repeat while x < enemyColumns:GetSize()
+            Array<Animal> enemies = enemyColumns:Get(x)
+            integer y = 0
+            repeat while y < enemies:GetSize()
+                Animal enemy = enemies:Get(y)
+AnimalAreaCell cell = GetCell(x, y)
+                if enemy not= undefined
+                    AnimalDrawable drawable
+                    drawable:Load(enemy)
+                    
+                    cell:SetAnimal(drawable)
+                else
+                    cell:SetAnimal(undefined)
+                end
+                y = y + 1
+            end
+            x = x + 1
+        end
+    end
+    
+    action SpawnNextWave
+        Array<Reinforcement> reinforcements = topRowReinforce:GetReinforcements()
+        integer i = 0
+        repeat while i < reinforcements:GetSize()
+            Reinforcement reinforcement = reinforcements:Get(i)
+            Animal animal = reinforcement:GetAnimal()
+            AnimalDrawable drawable
+            drawable:Load(animal)
+            
+            AnimalAreaCell cell = GetCell(reinforcement:GetColumn(), GetGridHeight() - 1)
+            if cell:GetAnimal() = undefined
+                cell:SetAnimal(drawable)
+            end
+            
+            // Animate the animal's appearance onto the scene.
+            EnemyAppearAnimation animation
+            drawable:AddBehavior(animation)
+            
+            i = i + 1
+        end
+    end
+    
+    action GetReinforcementRow returns ReinforcementRow
+        return topRowReinforce
+    end
+    
+end

@@ -1,0 +1,67 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Layouts.Layout
+use Libraries.Interface.Controls.Control
+use Libraries.Containers.Array
+use Libraries.Interface.Item2D
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Application
+
+class GameLayout is Layout
+    
+    GameStateManager gameState
+    
+    // This uses the Layout system so it can piggy-back off automatic resizing. It otherwise doesn't follow most normal layout conventions.
+action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        Application app = cast(Application, gameState:GetGame())
+        InterfaceComponents components = app:GetInterfaceComponents()
+        LayoutConstants constants
+        
+        HpBar hpBar = components:GetHpBar()
+        EnergyBar energyBar = components:GetEnergyBar()
+        
+hpBar:SetPosition(constants:SPACING, constants:SPACING)
+        energyBar:SetPosition(app:GetScreenWidth() - constants:SPACING - energyBar:GetWidth(), constants:SPACING)
+        hpBar:ResetLayoutFlag()
+        energyBar:ResetLayoutFlag()
+        
+        TreatsRow weaponsRow = components:GetTreatsRow()
+        weaponsRow:SetSize(app:GetScreenWidth() - hpBar:GetWidth() - energyBar:GetWidth() - 4 * constants:SPACING, hpBar:GetHeight() + constants:HALF_SPACING + constants:SPACING)
+        weaponsRow:SetPosition(hpBar:GetX() + hpBar:GetWidth() + constants:SPACING, constants:HALF_SPACING)
+        
+        DescriptionArea descriptionArea = components:GetDescriptionArea()
+        descriptionArea:SetSize(weaponsRow:GetWidth() * 1.1, descriptionArea:GetMinimumHeight())
+        descriptionArea:SetPosition((app:GetScreenWidth() - descriptionArea:GetWidth()) / 2.0, weaponsRow:GetY() + weaponsRow:GetHeight() + constants:SPACING)
+        
+        LevelBanner levelBanner = components:GetLevelBanner()
+        // Only set the banner's width. It'll handle its own height during layout.
+        levelBanner:SetWidth(app:GetScreenWidth())
+        levelBanner:SetPosition(0, app:GetScreenHeight() - levelBanner:GetHeight())
+        
+        PlayGrid playGrid = components:GetPlayGrid()
+        number playGridY = descriptionArea:GetY() + descriptionArea:GetHeight() + constants:SPACING
+        playGrid:SetSize(app:GetScreenWidth() - 2 * constants:SPACING, app:GetScreenHeight() - playGridY - levelBanner:GetHeight() - constants:SPACING)
+        playGrid:SetPosition(constants:SPACING, playGridY)
+        
+        Background background = components:GetBackground()
+        if background:GetPercentageWidth() > 0
+            number backgroundHeight = app:GetScreenHeight()
+            number backgroundWidth = backgroundHeight * background:GetPercentageWidth()
+            number ratioOfScreenWidth = backgroundWidth / app:GetScreenWidth()
+            // If the picture doesn't fit the whole width, multiply both dimensions until the picture fits the width.
+            if ratioOfScreenWidth < 1.0
+                backgroundWidth = backgroundWidth / ratioOfScreenWidth
+                backgroundHeight = backgroundHeight / ratioOfScreenWidth
+            end
+            background:SetSize(backgroundWidth, backgroundHeight)
+            background:SetPosition((app:GetScreenWidth() - backgroundWidth) / 2.0, (app:GetScreenHeight() - backgroundHeight) / 2.0)
+        end
+        
+        EventBanner banner = components:GetEventBanner()
+        if banner not= undefined
+            banner:SetWidth(app:GetScreenWidth())
+            banner:SetPosition(0, (app:GetScreenHeight() - banner:GetHeight()) / 2.0)
+        end
+end
+
+end

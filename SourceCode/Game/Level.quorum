@@ -1,0 +1,243 @@
+package Templates.PettingZooHero
+
+use Libraries.Containers.Array
+
+class Level
+
+    // The width and height of the top grid where enemies are.
+    integer gridWidth = 5
+    integer gridHeight = 5
+
+    // Objectives for the level. If both of these are <= 0, then the level's objective is to stop all animals and reinforcements.
+    integer requiredAnimalsStopped = 0
+    integer requiredTurnsSurvived = 0
+
+    // An array of columns containing the starting enemies. Access as X, then Y coordinates.
+    Array<Array<Animal>> startingAnimals
+    Array<Wave> waves
+    Array<Treat> treats
+
+    integer maximumHP = 3
+    integer maximumEnergy = 3
+    
+    text background = ""
+    
+    on create
+        InitializeGridArrays()
+    end
+
+    action SetGridWidth(integer gridWidth)
+        me:gridWidth = gridWidth
+InitializeGridArrays()
+    end
+
+    action GetGridWidth returns integer
+        return gridWidth
+    end
+
+    action SetGridHeight(integer gridHeight)
+        me:gridHeight = gridHeight
+InitializeGridArrays()
+    end
+
+    action GetGridHeight returns integer
+        return gridHeight
+    end
+
+    action SetGridSize(integer width, integer height)
+        gridWidth = width
+        gridHeight = height
+        InitializeGridArrays()
+    end
+    
+    action InitializeGridArrays
+        // Start by removing any excess columns.
+        repeat while startingAnimals:GetSize() > gridWidth
+            startingAnimals:RemoveFromEnd()
+        end
+        // Now add columns if we don't have enough.
+        repeat while startingAnimals:GetSize() < gridWidth
+            Array<Animal> array
+            startingAnimals:Add(array)
+        end
+        
+        // Now, check each column to ensure correct size. Perform similar culling/padding as we did before.
+        integer i = 0
+        repeat while i < startingAnimals:GetSize()
+            Array<Animal> column = startingAnimals:Get(i)
+            repeat while column:GetSize() > gridHeight
+                column:RemoveFromEnd()
+            end
+            repeat while column:GetSize() < gridHeight
+                column:Add(undefined)
+            end
+            
+            i = i + 1
+        end
+    end
+
+    action AddAnimal(Animal animal, integer x, integer y)
+        if x >= gridWidth
+            text message = 
+"I can't add an animal to column " + x + " because this level only has columns from 0 to " + (gridWidth - 1) + ".
+Use SetGridWidth or SetGridSize first, or add the animal to a column between 0 and " + (gridWidth - 1) + "."
+            alert(message)
+        end
+        if y >= gridHeight
+text message = 
+"I can't add an animal to row " + y + " because this level only has rows from 0 to " + (gridHeight - 1) + ".
+Use SetGridHeight or SetGridSize first, or add the animal to a row between 0 and " + (gridHeight - 1) + "."
+            alert(message)
+        end
+        
+    Array<Animal> column = startingAnimals:Get(x)
+        Animal previousEnemy = column:Get(y)
+        if previousEnemy not= undefined
+            text message = "I can't add an animal at position " + x + ", " + y + " because there is already a " + previousEnemy:GetName() + "
+added to this level at those coordinates. Each spot on the grid can only have one starting animal."
+            alert(message)
+        end
+        column:Set(y, animal)
+    end
+
+    action AddSheep(integer x, integer y) returns Sheep
+        Sheep sheep
+        AddAnimal(sheep, x, y)
+        return sheep
+    end
+
+    action AddBunny(integer x, integer y) returns Bunny
+        Bunny bunny
+        AddAnimal(bunny, x, y)
+        return bunny
+    end
+    
+    action AddTurtle(integer x, integer y) returns Turtle
+        Turtle turtle
+        AddAnimal(turtle, x, y)
+        return turtle
+    end
+    
+    action AddExtraAnimal(integer turn, Animal animal, integer x)
+        if turn <= 1
+            alert("I can't add an extra animal on turn " + turn + ". Extra animals must appear on Turn 2 or later.")
+        end
+        
+        Wave wave = undefined
+        integer i = 0
+        repeat while i < waves:GetSize()
+            if waves:Get(i):GetTurn() = turn
+                wave = waves:Get(i)
+                i = waves:GetSize()
+            end
+            i = i + 1
+        end
+        if wave = undefined
+            Wave newWave
+            wave = newWave
+            newWave:SetTurn(turn)
+            waves:Add(newWave)
+        end
+        
+        i = 0
+        repeat while i < wave:GetColumns():GetSize()
+            if wave:GetColumns():Get(i) = x
+                text name = wave:GetAnimals():Get(i):GetName()
+                alert("I can't add an animal to column " + x + " on turn " + turn + " because there's already a " + name + " in that column on turn " + turn + ".")
+            end
+            i = i + 1
+        end
+        
+        wave:AddAnimal(animal, x)
+    end
+    
+action AddExtraSheep(integer turn, integer x) returns Sheep
+        Sheep sheep
+        AddExtraAnimal(turn, sheep, x)
+        return sheep
+    end
+
+    action AddExtraBunny(integer turn, integer x) returns Bunny
+        Bunny bunny
+        AddExtraAnimal(turn, bunny, x)
+        return bunny
+    end
+    
+    action AddExtraTurtle(integer turn, integer x) returns Turtle
+        Turtle turtle
+        AddExtraAnimal(turn, turtle, x)
+        return turtle
+    end
+
+    action GetMaximumHP returns integer
+        return maximumHP
+    end
+
+    action SetMaximumHP(integer maximumHP)
+        me:maximumHP = maximumHP
+    end
+
+    action GetMaximumEnergy returns integer
+        return maximumEnergy
+    end
+
+    action SetMaximumEnergy(integer maximumEnergy)
+        me:maximumEnergy = maximumEnergy
+    end
+
+    // Adds another weapon that the player can use on this level.
+    action AddTreat(Treat treat)
+        treats:Add(treat)
+    end
+
+    action GetRequiredAnimalsStopped returns integer
+        return requiredAnimalsStopped
+    end
+
+    action SetRequiredAnimalsStopped(integer requiredAnimalsStopped)
+        me:requiredAnimalsStopped = requiredAnimalsStopped
+    end
+
+    action GetRequiredTurnsSurvived returns integer
+        return requiredTurnsSurvived
+    end
+
+    action SetRequiredTurnsSurvived(integer requiredTurnsSurvived)
+        me:requiredTurnsSurvived = requiredTurnsSurvived
+    end
+
+    action SetBackground(text background)
+        me:background = background
+    end
+
+    action GetBackground returns text
+        return background
+    end
+
+    action GetStartingAnimals returns Array<Array<Animal>>
+        return startingAnimals
+    end
+
+    action GetTreats returns Array<Treat>
+        return treats
+    end
+
+    action GetWaves returns Array<Wave>
+        return waves
+    end
+    
+    action AddWave(Wave wave)
+        // Make sure there's no duplicate waves.
+        integer i = 0
+        repeat while i < waves:GetSize()
+            if waves:Get(i):GetTurn() = wave:GetTurn()
+                alert("I couldn't add another wave to this level on turn " + wave:GetTurn() + " because there's already a wave added for this turn!
+Each turn can only have one wave.")
+            end
+            i = i + 1
+        end
+        
+        waves:Add(wave)
+    end
+
+end

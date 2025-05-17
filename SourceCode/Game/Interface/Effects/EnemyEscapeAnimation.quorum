@@ -1,0 +1,53 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Libraries.Interface.Events.BehaviorEvent
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Libraries.Game.Graphics.Color
+use Templates.PettingZooHero.Application
+
+class EnemyEscapeAnimation is GameBehavior
+    
+    AnimalDrawable enemy = undefined
+    
+    number fadeOutTime = 0.4
+    number timer = 0.0
+    
+    number startY = 0
+    number endY = 0
+    
+    action Run(BehaviorEvent event)
+        enemy = cast(AnimalDrawable, event:GetItem())
+        AnimalAreaCell cell = enemy:GetCell()
+        
+        startY = enemy:GetY()
+        endY = startY - cell:GetHeight() * 0.75
+    end
+    
+    action Update(number seconds)
+        timer = timer + seconds
+        number percent = timer / fadeOutTime
+        if percent >= 1.0
+            Application app = GetApplication()
+            app:AddPendingRemoval(enemy)
+app:DamagePlayer(1)
+        else
+            number distance = (endY - startY) * percent
+            enemy:SetY(startY + distance)
+            Color color = enemy:GetColor()
+            if color = undefined
+                Color white
+                white:SetColor(1, 1, 1, 1 - percent)
+                enemy:SetColor(white)
+            else
+                Color newColor
+                newColor:SetColor(color:GetRed(), color:GetGreen(), color:GetBlue(), 1 - percent)
+                enemy:SetColor(newColor)
+            end
+        end
+    end
+    
+    action IsFinished returns boolean
+        return timer >= fadeOutTime
+    end
+end

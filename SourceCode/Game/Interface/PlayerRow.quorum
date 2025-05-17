@@ -1,0 +1,125 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Layouts.Layout
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Game.Graphics.Color
+use Libraries.Containers.Array
+
+class PlayerRow is Control, Layout, PlayGridElement
+    
+    Array<PlayerRowCell> cells
+    integer targetCellCount = 0
+    
+    Player player
+    
+    constant text helpText = "Press left or right to move and aim. Press up arrow to go to the cells of the animal area. Press down to go to treat selection. Press space to throw the current treat."
+    
+    on create
+        SetName("PlayerRow")
+        SetInputGroup("PlayerRow")
+        SetLayout(me)
+        
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+        SetName("Player Row")
+    end
+    
+    action UpdateAccessInfo
+        SetDescription(CalculateDescription())
+    end
+    
+    private action CalculateDescription returns text
+        text result = "Column " + player:GetColumn() + ". "
+        result = result + helpText
+        return result
+    end
+    
+    action Create
+        // TO-DO: Remove this, for testing only
+        ControlShaderView view
+        view:Initialize()
+        SetView2D(view)
+        
+        Color color
+        SetBackgroundColor(color:CustomColor(0.2, 0.2, 0.2, 0.5))
+        
+        player:Create()
+        Add(player)
+    end
+    
+    action SetCellCount(integer count)
+        if count = cells:GetSize()
+            return now
+        end
+        
+        integer i = 0
+        repeat while i < cells:GetSize()
+            Remove(cells:Get(i))
+            i = i + 1
+        end
+        
+        cells:Empty()
+        
+        targetCellCount = count
+    end
+    
+    action GetCellCount returns integer
+        return targetCellCount
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+PlayGrid grid = GetPlayGrid()
+        number x = 0
+        boolean resetCells = false
+        
+        if targetCellCount not= cells:GetSize()
+integer i = 0
+        repeat while i < targetCellCount
+            PlayerRowCell cell
+            cell:Load(grid:GetCellWidth() + grid:GetCellBorderThickness(), cast(integer, GetHeight()), grid:GetCellBorderThickness())
+                cell:SetColumn(i)
+            Add(cell)
+            cells:Add(cell)
+                cell:ResetLayoutFlag()
+            i = i + 1
+        end
+            resetCells = true
+        end
+        
+        integer i = 0
+        repeat while i < cells:GetSize()
+            PlayerRowCell cell = cells:Get(i)
+            cell:SetSize(grid:GetCellWidth() + grid:GetCellBorderThickness(), GetHeight())
+            cell:SetPosition(x, 0)
+x = x + grid:GetCellWidth()
+            i = i + 1
+        end
+        
+        // Compensate for the slight "drift" that can occur due to pixel rounding. Center the cells within the space.
+        number drift = GetWidth() - (cells:GetFromEnd():GetX() + cells:GetFromEnd():GetWidth())
+        if drift > 1
+            i = 0
+            repeat while i < cells:GetSize()
+PlayerRowCell cell = cells:Get(i)
+                //cell:MoveX(drift / 2.0)
+                i = i + 1
+            end
+        end
+        
+        player:SetSize(grid:GetCellWidth() + grid:GetCellBorderThickness(), GetHeight())
+        if resetCells or player:GetCell() = undefined
+            // If the number of cells changed, or if the cell is somehow undefined, set the player to the middle one.
+            player:SetCell(cells:Get(cells:GetSize() / 2))
+        end
+    end
+    
+    action GetPlayer returns Player
+        return player
+    end
+    
+    action GetCell(integer column) returns PlayerRowCell
+        return cells:Get(column)
+    end
+
+end

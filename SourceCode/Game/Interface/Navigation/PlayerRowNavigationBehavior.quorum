@@ -1,0 +1,47 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Interface.Item
+use Templates.PettingZooHero.Interface.PlayerRow
+use Templates.PettingZooHero.Interface.PlayerRowCell
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+
+class PlayerRowNavigationBehavior is GameBehavior
+    
+    boolean goesUp = true
+    
+    action Run(BehaviorEvent event)
+        Application app = GetApplication()
+InterfaceComponents components = app:GetInterfaceComponents()
+        
+Item item = event:GetItem()
+        PlayerRow row = undefined
+        PlayerRowCell startCell = undefined
+        if item is PlayerRow
+            row = cast(PlayerRow, item)
+            startCell = row:GetPlayer():GetCell()
+        elseif item is PlayerRowCell
+            startCell = cast(PlayerRowCell, item)
+            row = startCell:GetPlayerRow()
+        end
+        integer column = startCell:GetColumn()
+        
+        if goesUp
+            components:GetAnimalArea():GetCell(column, 0):Focus()
+        else
+            components:GetTreatsRow():Focus()
+        end
+        
+    end
+    
+    action GoesUp returns boolean
+        return goesUp
+    end
+
+    action SetGoUp(boolean goUp)
+        goesUp = goUp
+    end
+
+end

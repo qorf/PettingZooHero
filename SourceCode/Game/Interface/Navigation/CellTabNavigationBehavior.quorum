@@ -1,0 +1,86 @@
+package Templates.PettingZooHero.Interface.Navigation
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Interface.Item
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Interface.AnimalArea
+use Templates.PettingZooHero.Interface.ReinforcementRow
+
+class CellTabNavigationBehavior is GameBehavior
+    
+    boolean goForward = true
+    
+    action Run(BehaviorEvent event)
+        Application app = GetApplication()
+        InterfaceComponents components = app:GetInterfaceComponents()
+        AnimalArea area = components:GetAnimalArea()
+        
+        Item item = event:GetItem()
+        AnimalAreaCell startCell = undefined
+        if item is AnimalAreaCell
+            startCell = cast(AnimalAreaCell, item)
+        else
+            if goForward
+                startCell = area:GetCell(0, 0)
+            else
+                startCell = area:GetCell(area:GetGridWidth() - 1, area:GetGridHeight() - 1)
+            end
+            // Explicitly check the first cell, because we didn't actually start here -- this is a valid stop for the next tab
+            if startCell:GetAnimal() not= undefined
+                startCell:Focus()
+                return now
+            end
+        end
+        
+        integer x = startCell:GetGridX()
+        integer y = startCell:GetGridY()
+        if goForward
+            x = x + 1
+            repeat while y < area:GetGridHeight()
+                repeat while x < area:GetGridWidth()
+                    AnimalAreaCell cell = area:GetCell(x, y)
+                    if cell:GetAnimal() not= undefined
+                        cell:Focus()
+                        return now
+                    end
+                    x = x + 1
+                end
+                x = 0
+                y = y + 1
+            end
+            
+            // If we didn't find anything, focus the reinforcement area.
+            ReinforcementRow row = components:GetReinforcementRow()
+            row:Focus()
+        else
+            x = x - 1
+            repeat while y > 0
+                repeat while x > 0
+                    AnimalAreaCell cell = area:GetCell(x, y)
+                    if cell:GetAnimal() not= undefined
+                        cell:Focus()
+                        return now
+                    end
+                    x = x - 1
+                end
+                x = area:GetGridWidth() - 1
+                y = y - 1
+            end
+            
+// If we didn't find anything, focus the reinforcement area.
+            ReinforcementRow row = components:GetReinforcementRow()
+            row:Focus()
+        end
+    end
+    
+    action GetGoForward returns boolean
+        return goForward
+    end
+
+    action SetGoForward(boolean goForward)
+        me:goForward = goForward
+    end
+
+end

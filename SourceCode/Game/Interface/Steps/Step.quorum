@@ -1,0 +1,27 @@
+package Templates.PettingZooHero.Interface.Steps
+
+use Templates.PettingZooHero.Application
+use Libraries.Game.GameStateManager
+
+class Step
+    
+    action OnStart
+        
+    end
+    
+    action Update(number seconds)
+        
+    end
+    
+    action OnFinish
+        
+    end
+    
+    blueprint action IsFinished returns boolean
+    
+action GetApplication returns Application
+        GameStateManager manager
+        return cast(Application, manager:GetGame())
+    end
+    
+end

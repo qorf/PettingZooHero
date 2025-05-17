@@ -1,0 +1,104 @@
+package Templates.PettingZooHero.Interface.Steps
+
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Interface.Effects.Projectile
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Interface.TreatOption
+use Libraries.Game.Graphics.Color
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.Player
+use Templates.PettingZooHero.Interface.Effects.ProjectileWaypoint
+use Templates.PettingZooHero.Interface.AnimalArea
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Templates.PettingZooHero.Interface.AnimalDrawable
+
+class ProjectileStep is Step
+    
+    Array<Projectile> projectiles
+    
+    action Create(TreatOption weapon)
+        Application app = GetApplication()
+        InterfaceComponents components = app:GetInterfaceComponents()
+        
+        Player player = components:GetPlayer()
+        AnimalArea enemyArea = components:GetAnimalArea()
+        
+        Projectile projectile
+projectiles:Add(projectile)
+        projectile:SetStep(me)
+        
+        
+integer column = player:GetColumn()
+        AnimalAreaCell firstCell = enemyArea:GetCell(column, 0)
+        
+        if weapon:GetProjectileFile() not= ""
+            projectile:Load(projectile:GetResourcesPath() + weapon:GetProjectileFile())
+        else
+            Color color
+            projectile:LoadFilledRectangle(20, 20, color:Orange())
+        end
+        
+        number maxWidth = 0.75 * firstCell:GetWidth()
+        number maxHeight = 0.75 * firstCell:GetHeight()
+        if projectile:GetWidth() > maxWidth or projectile:GetHeight() > maxHeight
+            number widthRatio = projectile:GetWidth() / projectile:GetHeight()
+            if widthRatio <= 1
+                // width less than height, height is biggest
+                projectile:SetSize(maxHeight * widthRatio, maxHeight)
+            else
+                projectile:SetSize(maxWidth, maxWidth / widthRatio)
+            end
+        end
+        
+        projectile:SetTreat(weapon)
+projectile:SetPosition(player:GetGlobalX() + player:GetWidth() / 2.0 - projectile:GetWidth() / 2.0, player:GetGlobalY() + player:GetHeight() / 2.0 - projectile:GetWidth() / 2.0)
+        
+        number wayX = firstCell:GetGlobalX() + firstCell:GetWidth() / 2.0
+        projectile:AddWaypoint(wayX, firstCell:GetGlobalY(), undefined)
+        
+        // Iterate through the cells and find the enemy this will hit, if any.
+        AnimalDrawable enemy = undefined
+        number wayY = 0
+        integer i = 0
+        repeat while i < enemyArea:GetGridHeight()
+            AnimalAreaCell cell = enemyArea:GetCell(column, i)
+            enemy = cell:GetAnimal()
+            if enemy not= undefined
+                wayY = enemy:GetGlobalY() + enemy:GetHeight() / 2.0
+                i = enemyArea:GetGridHeight()
+            end
+i = i + 1
+        end
+        
+        if enemy = undefined
+            AnimalAreaCell cell = enemyArea:GetCell(column, enemyArea:GetGridHeight() - 1)
+            wayY = cell:GetGlobalY() + cell:GetHeight() * 1.5
+        end
+        projectile:AddWaypoint(wayX, wayY, enemy)
+    end
+    
+    action OnStart
+GameStateManager manager
+        Application app = cast(Application, manager:GetGame())
+        app:GetSounds():PlayThrowSound()
+        integer i = 0
+        repeat while i < projectiles:GetSize()
+            app:Add(projectiles:Get(i))
+            i = i + 1
+        end
+    end
+    
+    action IsFinished returns boolean
+        integer counter = 0
+        repeat while counter < projectiles:GetSize()
+            if projectiles:Get(counter):IsFinished() = false
+                return false
+            end
+            counter = counter + 1
+        end
+        
+        return true
+    end
+    
+end

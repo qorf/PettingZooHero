@@ -1,0 +1,19 @@
+package Templates.PettingZooHero.Interface
+
+shared class LayoutConstants
+    public constant integer SPACING = 16
+    public constant integer HALF_SPACING = SPACING / 2
+    public constant integer QUARTER_SPACING = SPACING / 4
+    
+    public constant number MAX_CELL_WIDTH = 100
+    public constant number MAX_CELL_HEIGHT = 100
+    
+public constant number PLAYER_ROW_HEIGHT_MULTIPLIER = 0.6
+    
+    public constant integer SELECTION_BOX_Z = -1
+    public constant integer PROJECTILE_Z = -2
+    public constant integer EVENT_BANNER_Z = -5
+    public constant integer CELL_Z = 0
+    public constant integer CELL_FOCUS_Z = -1
+    public constant integer BACKGROUND_Z = 3
+end

@@ -1,0 +1,56 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Events.FocusEvent
+
+class PlayerRowCell is Cell
+    
+    integer column = 0
+    
+constant text helpText = "Press left or right to move and aim. Press up arrow to go to the cells of the animal area. Press down to go to treat selection. Press space to throw the current treat."
+    
+    on create
+        SetName("PlayerRowCell")
+SetInputGroup("PlayerRow")
+        SetDescription(helpText)
+    end
+    
+    action GetColumn returns integer
+        return column
+    end
+
+    action SetColumn(integer column)
+        me:column = column
+        SetName("Player Column " + column)
+    end
+    
+    action GetPlayerRow returns PlayerRow
+        Item2D parentItem = GetParent()
+        repeat until parentItem is PlayerRow or parentItem = undefined
+            parentItem = parentItem:GetParent()
+        end
+        return cast(PlayerRow, parentItem)
+    end
+    
+    action GetPlayer returns Player
+        PlayerRow row = GetPlayerRow()
+        if row = undefined
+            return undefined
+        end
+        return row:GetPlayer()
+    end
+    
+    action GetNextFocus returns Item
+        return GetPlayerRow():GetNextFocus()
+    end
+    
+    action GetPreviousFocus returns Item
+        return GetPlayerRow():GetPreviousFocus()
+    end
+    
+    action GainedFocus(FocusEvent event)
+        Player player = GetPlayer()
+        player:MoveToCell(me)
+        parent:Cell:GainedFocus(event)
+    end
+
+end

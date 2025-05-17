@@ -1,0 +1,118 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Controls.Control
+use Libraries.Interface.Layouts.Layout
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Level
+use Libraries.Interface.Views.ControlShaderView
+use Libraries.Game.Graphics.Color
+
+class PlayGrid is Control, Layout
+    
+    Level level = undefined
+    
+    number playerEnemyDividerSpacing = 16
+    
+    integer cellWidth = 0
+    integer cellHeight = 0
+    integer cellBorderThickness = 2
+    
+    PlayerRow playerRow
+    AnimalArea enemyArea
+    
+    on create
+        SetName("PlayGrid")
+        SetLayout(me)
+        
+        Add(playerRow)
+        Add(enemyArea)
+    end
+    
+    action Create
+        //TO-DO: For testing only. To be removed later
+        //ControlShaderView view
+        //view:Initialize()
+        //SetView2D(view)
+        
+        Color color
+        SetBackgroundColor(color:White())
+        
+        playerRow:Create()
+        enemyArea:Create()
+    end
+    
+    action Layout(Control container, Array<Item2D> items, number containerWidth, number containerHeight)
+        LayoutConstants constants
+        
+        // Add 2 half-rows (0.5 x 2 = 1) for the two Incoming Alerts columns.
+        number candidateCellWidth = (containerWidth - 2 * cellBorderThickness) / (level:GetGridWidth() + 1)
+        if candidateCellWidth > constants:MAX_CELL_WIDTH
+            candidateCellWidth = constants:MAX_CELL_WIDTH
+        end
+        
+        // Add 0.5 rows for the Incoming Alerts from the top, and consider space for the player row and the dividing gap.
+        number candidateCellHeight = (containerHeight - playerEnemyDividerSpacing) / (level:GetGridHeight() + 0.5 + constants:PLAYER_ROW_HEIGHT_MULTIPLIER)
+        if candidateCellHeight > constants:MAX_CELL_HEIGHT
+            candidateCellHeight = constants:MAX_CELL_HEIGHT
+        end
+        
+        if candidateCellWidth > candidateCellHeight
+            candidateCellWidth = candidateCellHeight
+        else
+            candidateCellHeight = candidateCellWidth
+        end
+        
+        cellWidth = cast(integer, candidateCellWidth)
+        cellHeight = cast(integer, candidateCellHeight)
+        if cellWidth <= 0 or cellHeight <= 0
+            return now
+        end
+        
+        playerRow:SetSize(level:GetGridWidth() * cellWidth + 2 * cellBorderThickness, cellHeight * constants:PLAYER_ROW_HEIGHT_MULTIPLIER)
+        playerRow:SetPosition((containerWidth - playerRow:GetWidth()) / 2.0, 0)
+        
+        enemyArea:SetSize(level:GetGridWidth() * cellWidth + 2 * cellBorderThickness, cellHeight * level:GetGridHeight())
+        enemyArea:SetPosition(playerRow:GetX(), playerRow:GetY() + playerRow:GetHeight() + playerEnemyDividerSpacing)
+    end
+    
+    action GetLevel returns Level
+        return level
+    end
+
+    action SetLevel(Level level)
+        me:level = level
+        playerRow:SetCellCount(level:GetGridWidth())
+        enemyArea:SetCellCount(level:GetGridWidth(), level:GetGridHeight())
+        enemyArea:LoadStartingAnimals(level:GetStartingAnimals())
+        RequestLayout()
+    end
+
+    action GetCellWidth returns integer
+        return cellWidth
+    end
+
+    action GetCellHeight returns integer
+        return cellHeight
+    end
+
+    action GetCellBorderThickness returns integer
+        return cellBorderThickness
+    end
+
+    action SetCellBorderThickness(integer cellBorderThickness)
+        if cellBorderThickness = me:cellBorderThickness
+            return now
+        end
+        me:cellBorderThickness = cellBorderThickness
+        RequestLayout()
+    end
+
+    action GetPlayerRow returns PlayerRow
+        return playerRow
+    end
+
+    action GetAnimalArea returns AnimalArea
+        return enemyArea
+    end
+
+end

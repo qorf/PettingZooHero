@@ -1,0 +1,12 @@
+package Templates.PettingZooHero.Interface
+
+class EnergyBar is ResourceBar
+    
+    on create
+        SetBarColor(1, 1, 0, 1)
+        SetName("BUDGET")
+        SetFocusable(true)
+SetAccessibilityCode(parent:Item:CUSTOM)
+    end
+    
+end

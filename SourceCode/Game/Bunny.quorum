@@ -1,0 +1,12 @@
+package Templates.PettingZooHero
+
+class Bunny is Animal
+    
+    on create
+        SetName("Bunny")
+        SetDescription("Bunnies move quick! They want 1 food and move 2 spaces each turn.")
+        SetImageFile("Bunny.png")
+        SetSpeed(2)
+    end
+    
+end

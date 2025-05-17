@@ -1,0 +1,67 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Containers.Array
+use Libraries.Sound.Audio
+use Libraries.Compute.Random
+
+class SoundManager
+    
+    Random random
+    
+    Audio throwSound
+    
+    Array<Audio> eatingSounds
+    Array<Audio> availableEatingSounds
+    
+    number masterVolume = 1
+    
+    action Load
+        i = 1
+        repeat 6 times
+            Audio audio
+            audio:Load(GetResourcePath() + "Crunch " + i + ".wav")
+            audio:SetVolume(0.5 * masterVolume)
+            eatingSounds:Add(audio)
+        end
+        ResetAvailableEatingSounds()
+        
+        throwSound:Load(GetResourcePath() + "Woosh.wav")
+        throwSound:SetVolume(masterVolume)
+    end
+    
+    private action ResetAvailableEatingSounds
+        availableEatingSounds:Empty()
+        integer i = 0
+        repeat while i < eatingSounds:GetSize()
+            availableEatingSounds:Add(eatingSounds:Get(i))
+            i = i + 1
+        end
+    end
+    
+    action GetResourcePath returns text
+        return "Resources/Audio/"
+    end
+    
+    action GetMasterVolume returns number
+        return masterVolume
+    end
+
+    action SetMasterVolume(number masterVolume)
+        me:masterVolume = masterVolume
+    end
+    
+    action PlayThrowSound
+        throwSound:Play()
+    end
+    
+    action PlayEatingSound
+        if availableEatingSounds:IsEmpty()
+            ResetAvailableEatingSounds()
+        end
+        
+        integer index = random:RandomIntegerBetween(0, availableEatingSounds:GetSize() - 1)
+        Audio audio = availableEatingSounds:RemoveAt(index)
+        audio:Play()
+    end
+
+end

@@ -1,0 +1,12 @@
+package Templates.PettingZooHero
+
+class Turtle is Animal
+    
+    on create
+        SetName("Turtle")
+        SetDescription("Turtles are big eaters! They only move one space, but they want 3 food.")
+        SetImageFile("Turtle.png")
+        SetHP(3)
+    end
+    
+end

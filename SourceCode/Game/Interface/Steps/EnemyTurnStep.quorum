@@ -1,0 +1,116 @@
+package Templates.PettingZooHero.Interface.Steps
+
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.AnimalArea
+use Templates.PettingZooHero.Interface.AnimalAreaCell
+use Template.PettingZooHero.Interface.Steps.EndEnemyTurnStep
+
+class EnemyTurnStep is Step
+    
+    integer cellX = 0
+    integer cellY = 0
+    Array<AnimalDrawable> movingEnemies
+    boolean finished = false
+    
+boolean continueProcessing = true
+    number waitTime = 0.1
+number timer = waitTime
+    
+    action Update(number seconds)
+        if continueProcessing = false
+            return now
+        end
+        
+        timer = timer + seconds
+        if timer >= waitTime
+            timer = timer - waitTime
+        else
+            return now
+        end
+        
+        Application app = GetApplication()
+        AnimalArea area = app:GetInterfaceComponents():GetAnimalArea()
+        
+        repeat while cellY < area:GetGridHeight()
+            repeat while cellX < area:GetGridWidth()
+                AnimalAreaCell cell = area:GetCell(cellX, cellY)
+                AnimalDrawable enemy = cell:GetAnimal()
+                if enemy not= undefined
+                    if enemy:CanEscape()
+                        EnemyEscapeStep escapeStep
+                        escapeStep:SetEnemy(enemy)
+                        app:AddStep(escapeStep)
+                        
+                        integer newX = cellX + 1
+                        integer newY = cellY
+                        if newX >= area:GetGridWidth()
+                            newX = 0
+                            newY = newY + 1
+                        end
+                        EnemyTurnStep turnStep
+                        turnStep:SetCellX(newX)
+                        turnStep:SetCellY(newY)
+                        app:AddStep(turnStep)
+                        continueProcessing = false
+                    end
+                    if enemy:CanMoveForward()
+                        enemy:MoveForward()
+                        movingEnemies:Add(enemy)
+                    end
+                    cellX = cellX + 1
+                    if cellX >= area:GetGridWidth()
+                        cellX = 0
+                        cellY = cellY + 1
+                    end
+                    
+                    return now
+                end
+                cellX = cellX + 1
+            end
+            cellX = 0
+            cellY = cellY + 1
+        end
+        
+        continueProcessing = false
+        
+        // Check if the game was completed (player's health reached 0 or the last required enemy escaped) during the enemy turn.
+        // After ending the turn, check again for completion (because turns survived might've been satisfied during the end step)
+        CheckObjectivesStep checkStep
+        app:AddStep(checkStep)
+        EndEnemyTurnStep endStep
+        app:AddStep(endStep)
+        CheckObjectivesStep checkStep2
+        app:AddStep(checkStep2)
+    end
+    
+    action IsFinished returns boolean
+        integer i = 0
+        repeat while i < movingEnemies:GetSize()
+            if movingEnemies:Get(i):IsMoving()
+                return false
+            end
+            i = i + 1
+        end
+        
+        return continueProcessing = false
+    end
+    
+    action GetCellX returns integer
+        return cellX
+    end
+
+    action GetCellY returns integer
+        return cellY
+    end
+
+    action SetCellX(integer cellX)
+        me:cellX = cellX
+    end
+
+    action SetCellY(integer cellY)
+        me:cellY = cellY
+    end
+
+end

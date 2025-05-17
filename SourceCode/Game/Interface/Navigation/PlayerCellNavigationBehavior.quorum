@@ -1,0 +1,45 @@
+package Templates.PettingZooHero.Interface.Navigation
+
+use Templates.PettingZooHero.Interface.Effects.GameBehavior
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Interface.Item
+use Templates.PettingZooHero.Interface.PlayerRow
+use Templates.PettingZooHero.Interface.PlayerRowCell
+
+class PlayerCellNavigationBehavior is GameBehavior
+    
+    boolean goLeft = true
+    
+    action Run(BehaviorEvent event)
+        Item item = event:GetItem()
+        PlayerRow row = undefined
+        PlayerRowCell startCell = undefined
+        if item is PlayerRow
+            row = cast(PlayerRow, item)
+            startCell = row:GetPlayer():GetCell()
+        elseif item is PlayerRowCell
+            startCell = cast(PlayerRowCell, item)
+            row = startCell:GetPlayerRow()
+        end
+        integer column = startCell:GetColumn()
+        PlayerRowCell targetCell = undefined
+        if goLeft and column > 0
+            targetCell = row:GetCell(column - 1)
+        elseif goLeft = false and column < row:GetCellCount() - 1
+            targetCell = row:GetCell(column + 1)
+        end
+        
+        if targetCell not= undefined
+            targetCell:Focus()
+        end
+    end
+    
+    action GoesLeft returns boolean
+        return goLeft
+    end
+
+    action SetGoLeft(boolean goLeft)
+        me:goLeft = goLeft
+    end
+
+end

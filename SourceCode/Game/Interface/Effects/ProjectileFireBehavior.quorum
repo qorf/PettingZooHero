@@ -1,0 +1,47 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Libraries.Interface.Events.BehaviorEvent
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.Steps.ProjectileStep
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Templates.PettingZooHero.Interface.TreatsRow
+use Templates.PettingZooHero.Interface.TreatOption
+use Templates.PettingZooHero.Interface.Steps.WaitStep
+use Templates.PettingZooHero.Interface.FireButton
+use Templates.PettingZooHero.Interface.EnergyBar
+
+class ProjectileFireBehavior is GameBehavior
+    action Run(BehaviorEvent event)
+        Application app = GetApplication()
+        InterfaceComponents components = GetInterfaceComponents()
+        FireButton button = components:GetFireButton()
+        
+if button:IsEnabled() = false
+            return now
+        end
+        
+        TreatsRow row = components:GetTreatsRow()
+        TreatOption weapon = row:GetSelectedTreat()
+        EnergyBar energy = components:GetEnergyBar()
+        
+if weapon:GetCost() > energy:GetCurrentValue()
+            output weapon:GetName() + ": " + weapon:GetCost() + " > " + energy:GetCurrentValue()
+            return now
+        end
+        
+        energy:SetCurrentValue(energy:GetCurrentValue() - weapon:GetCost())
+        
+button:SetEnabled(false)
+        
+        ProjectileStep step
+        step:Create(weapon)
+        
+        app:AddStep(step)
+        
+        WaitStep wait
+        app:AddStep(wait)
+        
+        app:QueueEnemyTurnSteps()
+    end
+end

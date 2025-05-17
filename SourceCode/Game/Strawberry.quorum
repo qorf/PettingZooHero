@@ -1,0 +1,16 @@
+package Templates.PettingZooHero
+
+class Strawberry is Treat
+
+    on create
+        SetName("Strawberry")
+        SetDescription("A tasty but expensive snack. Strawberries sate 3 hunger and delays 1 space, but they cost $2.")
+        SetImageFile("Strawberry.png")
+        SetProjectileFile("Strawberry Transparent.png")
+
+        SetFlavor(3)
+        SetPush(1)
+        SetCost(2)
+    end
+
+end

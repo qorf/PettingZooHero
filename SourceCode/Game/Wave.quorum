@@ -1,0 +1,35 @@
+package Templates.PettingZooHero
+
+use Libraries.Containers.Array
+
+class Wave
+
+    Array<Animal> animals
+    Array<integer> columns
+    integer turn = 2
+    
+    action AddAnimal(Animal animal, integer column)
+        if columns:Has(column)
+            alert("I couldn't add a " + animal:GetName() + " to this wave at Column " + column + " because there's already another animal in that spot for this wave.")
+        end
+        animals:Add(animal)
+        columns:Add(column)
+    end
+
+    action GetTurn returns integer
+        return turn
+    end
+
+    action SetTurn(integer turn)
+        me:turn = turn
+    end
+
+    action GetAnimals returns Array<Animal>
+        return animals
+    end
+
+    action GetColumns returns Array<integer>
+        return columns
+    end
+
+end

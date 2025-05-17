@@ -1,0 +1,14 @@
+package Templates.PettingZooHero.Interface
+
+class HungerBar is ResourceBar
+on create
+        SetBarColor(0.5, 1, 0.5, 1)
+        SetName("Hunger")
+        SetInverted(true)
+        SetShowAmount(false)
+        SetShowName(false)
+        SetFocusable(false)
+        SetAmountFontSize(6)
+    end
+    
+end

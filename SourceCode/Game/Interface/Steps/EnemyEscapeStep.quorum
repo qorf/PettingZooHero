@@ -1,0 +1,26 @@
+package Templates.PettingZooHero.Interface.Steps
+
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Templates.PettingZooHero.Interface.Effects.EnemyEscapeAnimation
+
+class EnemyEscapeStep is Step
+    AnimalDrawable enemy = undefined
+    EnemyEscapeAnimation animation
+    
+    action OnStart
+        enemy:AddBehavior(animation)
+    end
+    
+    action GetEnemy returns AnimalDrawable
+        return enemy
+    end
+
+    action SetEnemy(AnimalDrawable enemy)
+        me:enemy = enemy
+    end
+    
+    action IsFinished returns boolean
+        return animation:IsFinished()
+    end
+
+end

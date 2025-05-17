@@ -1,0 +1,41 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Game.Graphics.Texture
+use Libraries.Containers.HashTable
+use Libraries.Game.Graphics.PixelMap
+use Libraries.Game.Graphics.Format
+use Libraries.Game.Graphics.Color
+
+shared class TextureManager
+    
+    HashTable<text, Texture> boxTextures
+    
+    action GetHollowBox(integer width, integer height, integer borderThickness) returns Texture
+        text key = width + "x" + height + "x" + borderThickness
+        if boxTextures:HasKey(key)
+            return boxTextures:GetValue(key)
+        end
+        
+        Texture newTexture
+        
+        PixelMap pixelMap
+Format format
+        format:SetValue(format:RGBA8888)
+        Color color
+        pixelMap:CreatePixelMap(width, height, format)
+        //pixelMap:DrawRectangle(0, 0, width, height, color:White())
+        
+pixelMap:Fill(color:CustomColor(1, 1, 1, 0))
+        pixelMap:FillRectangle(0, 0, width, borderThickness, color:White())
+        pixelMap:FillRectangle(0, 0, borderThickness, height, color:White())
+pixelMap:FillRectangle(0, height - borderThickness, width, borderThickness, color:White())
+        pixelMap:FillRectangle(width - borderThickness, 0, borderThickness, height, color:White())
+        //pixelMap:FillRectangle(borderThickness, borderThickness, width - 2 * borderThickness, height - 2 * borderThickness, color:CustomColor(1, 1, 1, 0))
+        
+        newTexture:LoadFromPixelMap(pixelMap)
+        boxTextures:Add(key, newTexture)
+        
+        return newTexture
+    end
+    
+end

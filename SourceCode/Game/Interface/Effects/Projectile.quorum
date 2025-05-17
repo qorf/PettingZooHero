@@ -1,0 +1,138 @@
+package Templates.PettingZooHero.Interface.Effects
+
+use Libraries.Game.Graphics.Drawable
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Libraries.Compute.Vector2
+use Libraries.Game.GameStateManager
+use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.LayoutConstants
+use Templates.PettingZooHero.Interface.Steps.ProjectileStep
+use Templates.PettingZooHero.Interface.TreatOption
+
+class Projectile is Drawable
+    
+    number speed = 400
+    number rotationSpeed = 720
+    number shrinkSpeed = 2.0
+    number minimumShrink = 0.1
+    boolean shrinking = false
+    boolean finished = false
+    
+    Array<ProjectileWaypoint> waypoints
+    
+    ProjectileStep step = undefined
+    TreatOption treat = undefined
+    
+    on create
+        LayoutConstants constants
+        SetZ(constants:PROJECTILE_Z)
+    end
+    
+action GetResourcesPath returns text
+        return "Resources/Images/"
+    end
+    
+    action AddWaypoint(number x, number y, AnimalDrawable enemy)
+        ProjectileWaypoint waypoint
+        waypoint:Set(x, y, enemy)
+        waypoints:Add(waypoint)
+    end
+    
+    action Update(number seconds)
+        Rotate(rotationSpeed * seconds)
+        if waypoints:IsEmpty()
+            shrinking = true
+        end
+        
+        if shrinking
+            number lastCenterX = GetX() + (GetWidth() * GetScaleX()) / 2.0
+            number lastCenterY = GetY() + (GetHeight() * GetScaleY()) / 2.0
+            number scale = GetScaleX()
+            number newScale = scale - (shrinkSpeed * seconds)
+            if newScale < minimumShrink
+                Hide()
+finished = true
+GameStateManager manager
+Application app = cast(Application, manager:GetGame())
+                app:AddPendingRemoval(me)
+            else
+                SetScale(newScale, newScale)
+number newCenterX = GetX() + (GetWidth() * GetScaleX()) / 2.0
+            number newCenterY = GetY() + (GetHeight() * GetScaleY()) / 2.0
+                Move(lastCenterX - newCenterX, lastCenterY - newCenterY)
+            end
+        else
+            number moveSpeed = speed * seconds
+            
+            ProjectileWaypoint waypoint = waypoints:GetFromFront()
+            number centerX = GetX() + GetWidth() / 2.0
+            number centerY = GetY() + GetHeight() / 2.0
+            Vector2 goal
+            goal:Set(waypoint:GetX(), waypoint:GetY())
+            if goal:Distance(centerX, centerY) < moveSpeed
+                SetPosition(goal:GetX() - GetWidth() / 2.0, goal:GetY() - GetHeight() / 2.0)
+                if waypoint:GetAnimal() not= undefined
+                    waypoint:GetAnimal():Damage(me)
+                    GameStateManager manager
+Application app = cast(Application, manager:GetGame())
+                    app:GetSounds():PlayEatingSound()
+                end
+                waypoints:RemoveFromFront()
+            else
+                Vector2 direction
+                direction:Set(goal)
+                direction:Subtract(centerX, centerY)
+                direction:Normalize()
+                direction:Scale(moveSpeed)
+                Move(direction)
+            end
+            
+        end
+    end
+    
+    action GetSpeed returns number
+        return speed
+    end
+
+    action SetSpeed(number speed)
+        me:speed = speed
+    end
+
+    action GetRotationSpeed returns number
+        return rotationSpeed
+    end
+
+    action SetRotationSpeed(number rotationSpeed)
+        me:rotationSpeed = rotationSpeed
+    end
+
+    action GetShrinkSpeed returns number
+        return shrinkSpeed
+    end
+
+    action SetShrinkSpeed(number shrinkSpeed)
+        me:shrinkSpeed = shrinkSpeed
+    end
+
+    action GetStep returns ProjectileStep
+        return step
+    end
+
+    action SetStep(ProjectileStep step)
+        me:step = step
+    end
+    
+    action IsFinished returns boolean
+        return finished
+    end
+
+    action GetTreat returns TreatOption
+        return treat
+    end
+
+    action SetTreat(TreatOption treat)
+        me:treat = treat
+    end
+
+end

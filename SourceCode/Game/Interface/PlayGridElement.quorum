@@ -1,0 +1,15 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Interface.Item2D
+
+class PlayGridElement is Item2D
+    
+    action GetPlayGrid returns PlayGrid
+        Item2D parentItem = GetParent()
+        repeat until parentItem = undefined or parentItem is PlayGrid
+            parentItem = parentItem:GetParent()
+        end
+        return cast(PlayGrid, parentItem)
+    end
+    
+end

@@ -1,0 +1,11 @@
+package Templates.PettingZooHero
+
+class Sheep is Animal
+    
+    on create
+        SetName("Sheep")
+        SetDescription("The most common animal at the petting zoo, sheep want 1 food and move 1 space each turn.")
+        SetImageFile("Sheep.png")
+    end
+    
+end
