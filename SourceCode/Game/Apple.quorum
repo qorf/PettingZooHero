@@ -6,6 +6,7 @@ class Apple is Treat
         SetName("Apple")
         SetDescription("A reliable snack! An apple sates 1 hunger and delays 1 space, and it costs nothing to toss.")
         SetImageFile("Apple.png")
+SetProjectileFile("Apple.png")
 
         SetFlavor(1)
         SetPush(1)

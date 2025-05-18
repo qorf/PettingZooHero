@@ -25,7 +25,7 @@ class TreatsRow is Icon, Layout
         
         Color color
         optionBorderColor = color:Black()
-        SetBackgroundColor(color:CustomColor(0.6, 0.6, 0.6, 0.6))
+        SetBackgroundColor(color:CustomColor(0.8, 0.8, 0.8, 0.6))
         
         SetFocusable(true)
         SetName("Treats")

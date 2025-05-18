@@ -6,7 +6,7 @@ class Strawberry is Treat
         SetName("Strawberry")
         SetDescription("A tasty but expensive snack. Strawberries sate 3 hunger and delays 1 space, but they cost $2.")
         SetImageFile("Strawberry.png")
-        SetProjectileFile("Strawberry Transparent.png")
+        SetProjectileFile("Strawberry.png")
 
         SetFlavor(3)
         SetPush(1)

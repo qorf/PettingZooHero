@@ -5,7 +5,8 @@ class BouncyBall is Treat
     on create
         SetName("Bouncy Ball")
         SetDescription("Playtime! A big, bouncy ball won't feed an animal, but it'll delay it 3 spaces.")
-        SetImageFile("Bouncy Ball.png")
+        SetImageFile("Bouncy Ball Purple.png")
+SetProjectileFile("Bouncy Ball Purple.png")
 
         SetFlavor(0)
         SetPush(3)

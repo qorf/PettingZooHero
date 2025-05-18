@@ -1,0 +1,3 @@
+Apple.png, Banana.png, Bouncy Ball.png, Bouncy Ball Purple.png, Bunny.png, Grapes.png, Player.png, Sheep.png, Snake.png, Strawberry.png, Turtle.png
+Created by Vinakurau Mikita (MelancholyG), released under BSD 3-Clause License 5/18/2025.
+https://www.fiverr.com/melancholyg

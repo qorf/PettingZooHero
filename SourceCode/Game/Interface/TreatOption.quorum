@@ -39,7 +39,7 @@ SetInputGroup("TreatsRow")
         selectionBorders:SetBackgroundColor(color:CustomColor(1, 1, 1, 0))
         selectionBorders:SetSelectionColor(color:CustomColor(1, 1, 1, 0))
         selectionBorders:SetBorderColor(color:CustomColor(1, 1, 1, 0))
-        selectionBorders:SetSelectionBorderColor(color:CustomColor(0.5, 0.5, 1, 1))
+        selectionBorders:SetSelectionBorderColor(color:Orange())
     end
     
     
