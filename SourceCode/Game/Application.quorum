@@ -73,6 +73,7 @@ class Application is Game
             alert("The game doesn't have any levels yet! Use the AddLevel action to add levels for the game.")
         end
         
+SetFocusManager(focusManager)
         sounds:Load()
         
 components:AddDefaultComponents(me)
@@ -82,7 +83,6 @@ components:AddDefaultComponents(me)
         SetLayout(layout)
         
 SetupInputTables()
-SetFocusManager(focusManager)
     end
     
     private action SetupInputTables
@@ -322,7 +322,7 @@ Array<Wave> waves = currentLevel:GetWaves()
         
 LevelBanner banner = components:GetLevelBanner()
         banner:UpdateLevelInfo(levelNumber, remainingKills, remainingTurns)
-        
+        banner:Focus()
     end
     
     private action ClearCurrentLevel
