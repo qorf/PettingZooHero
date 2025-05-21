@@ -59,6 +59,7 @@ class Application is Game
     
     DescriptionFocusManager focusManager
     
+    number volume = 1
     SoundManager sounds
     
     on create
@@ -74,6 +75,7 @@ class Application is Game
         end
         
 SetFocusManager(focusManager)
+        sounds:SetMasterVolume(volume)
         sounds:Load()
         
 components:AddDefaultComponents(me)
@@ -238,6 +240,7 @@ Remove(item)
         end
         
         stepQueue:Update(seconds)
+        sounds:StreamMusic()
     end
 
     /*
@@ -259,6 +262,10 @@ Remove(item)
     action SetCurrentLevel(Level level)
         if currentLevel not= undefined
             ClearCurrentLevel()
+        end
+        
+        if level:GetMusic() not= "" and level:GetMusic() not= undefined
+            sounds:PlayMusic(level:GetMusic(), level:GetMusicVolume())
         end
         
 components:GetPlayGrid():SetLevel(level)
@@ -411,6 +418,9 @@ LevelBanner banner = components:GetLevelBanner()
         EventBanner banner = components:AddEventBanner(title, subtitle, forestGreen, white)
         banner:SetInputGroup(inputGroup)
         banner:Focus()
+        
+        sounds:StopMusic()
+        sounds:PlayVictorySound()
     end
     
 action OnLevelLost
@@ -420,6 +430,9 @@ action OnLevelLost
         EventBanner banner = components:AddEventBanner("GAME OVER", "Press any key to start a new game!", gray, black)
         banner:SetInputGroup("FirstLevelEvent")
         banner:Focus()
+        
+        sounds:StopMusic()
+        sounds:PlayGameOver()
     end
     
     action OnEnemyTurnEnd
@@ -460,6 +473,14 @@ action OnLevelLost
 
     action GetSounds returns SoundManager
         return sounds
+    end
+
+    action GetVolume returns number
+        return volume
+    end
+
+    action SetVolume(number volume)
+        me:volume = volume
     end
 
 end

@@ -1,8 +1,11 @@
 use Templates.PettingZooHero.all
 
 Application myGame
+myGame:SetVolume(0.5)
 Level level1
 level1:SetGridSize(7, 7)
+level1:SetMusic("Fuzzball Parade.ogg")
+level1:SetMusicVolume(0.5)
 level1:SetMaximumEnergy(7)
 Apple apple
 BouncyBall ball

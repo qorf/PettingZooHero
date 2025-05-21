@@ -39,9 +39,8 @@ integer column = player:GetColumn()
             projectile:LoadFilledRectangle(20, 20, color:Orange())
         end
         
-        number maxWidth = 0.75 * firstCell:GetWidth()
-        number maxHeight = 0.75 * firstCell:GetHeight()
-        if projectile:GetWidth() > maxWidth or projectile:GetHeight() > maxHeight
+        number maxWidth = 0.5 * firstCell:GetWidth()
+        number maxHeight = 0.5 * firstCell:GetHeight()
             number widthRatio = projectile:GetWidth() / projectile:GetHeight()
             if widthRatio <= 1
                 // width less than height, height is biggest
@@ -49,7 +48,6 @@ integer column = player:GetColumn()
             else
                 projectile:SetSize(maxWidth, maxWidth / widthRatio)
             end
-        end
         
         projectile:SetTreat(weapon)
 projectile:SetPosition(player:GetGlobalX() + player:GetWidth() / 2.0 - projectile:GetWidth() / 2.0, player:GetGlobalY() + player:GetHeight() / 2.0 - projectile:GetWidth() / 2.0)
