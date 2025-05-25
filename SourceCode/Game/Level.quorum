@@ -102,6 +102,16 @@ added to this level at those coordinates. Each spot on the grid can only have on
         end
         column:Set(y, animal)
     end
+    
+    action GetAnimal(integer x, integer y) returns Animal 
+Array<Animal> column = startingAnimals:Get(x)
+        Animal previousEnemy = column:Get(y)
+        return previousEnemy
+    end
+    
+    action HasAnimal(integer x, integer y) returns boolean
+        return GetAnimal(x, y) not= undefined
+    end
 
     action AddSheep(integer x, integer y) returns Sheep
         Sheep sheep
