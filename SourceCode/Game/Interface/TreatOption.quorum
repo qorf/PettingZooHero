@@ -54,7 +54,7 @@ SetInputGroup("TreatsRow")
         
         text imageFile = weapon:GetImageFile()
         if imageFile = ""
-            imageFile = "Custom Weapon.png"
+            imageFile = "Custom Treat.png"
         end
         Load(GetResourcesPath() + imageFile)
         
