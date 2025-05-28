@@ -10,13 +10,16 @@ use Libraries.Game.Graphics.Label
 use Libraries.Game.Graphics.Font
 use Libraries.Game.Graphics.ColorGroup
 use Templates.PettingZooHero.Interface.Effects.ProjectileFireBehavior
+use Libraries.Game.Graphics.Fonts.FontManager
+use Libraries.Game.Graphics.Fonts.FontFamily
+use Libraries.System.File
 
 class DescriptionArea is Control, Layout
-    
     Label nameLabel = undefined
     Array<Label> detailLabels
     Label descriptionLabel
     FireButton fireButton
+    text fontFamily = "Arial"
     
     constant integer DEFAULT_FONT_SIZE = 18
     
@@ -220,11 +223,13 @@ if fireButton:NeedsLayout()
     end
     
     private action CreateBoldLabel returns Label
-        // TO-DO: Do something more sophisticated to get the best available bold font based on platform
         check
 Label label
+            FontManager manager
         Font font
-        font:LoadFont("arialbd")
+        FontFamily family = manager:GetFontFamily(fontFamily)
+            text name = family:GetBold()
+font:LoadFont(name)
         font:SetSize(GetFontSize())
         label:SetFont(font)
 label:SetFontColor(GetFontColor())
@@ -238,11 +243,14 @@ label:SetFontColor(GetFontColor())
     end
     
 private action CreateItalicsLabel returns Label
-        // TO-DO: Do something more sophisticated to get the best available bold font based on platform
         check
 Label label
+            
+FontManager manager
+FontFamily family = manager:GetFontFamily(fontFamily)
+            text name = family:GetItalic()
         Font font
-        font:LoadFont("ariali")
+        font:LoadFont(name)
         font:SetSize(GetFontSize() - 3)
         label:SetFont(font)
 label:SetFontColor(GetFontColor())
