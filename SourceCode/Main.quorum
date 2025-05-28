@@ -1,33 +1,8 @@
 use Templates.PettingZooHero.all
 
 Application myGame
-myGame:SetVolume(0.5)
 Level level1
-level1:SetGridSize(7, 7)
-level1:SetMusic("Fuzzball Parade.ogg")
-level1:SetMusicVolume(0.5)
-level1:SetMaximumEnergy(7)
-Apple apple
-BouncyBall ball
-Strawberry berry
-level1:AddTreat(apple)
-level1:AddTreat(ball)
-level1:AddTreat(berry)
-
-Animal animal
-animal:SetImageFile("Bunny.png")
-animal:SetSpeed(2)
-animal:SetHP(2)
-animal:SetName("Big Bunny")
-animal:SetDescription("This guy's fast and hungry!")
-level1:AddAnimal(animal, 2, 2)
-level1:AddTurtle(6, 6)
-integer x = 0
-repeat while x < 5
-    level1:AddSheep(x, 6)
-    x = x + 1
-end
+level1:AddSheep(2, 3)
 
 myGame:AddLevel(level1)
 myGame:Run()
-

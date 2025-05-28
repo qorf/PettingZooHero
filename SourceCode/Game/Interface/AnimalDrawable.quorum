@@ -27,7 +27,7 @@ class AnimalDrawable is Drawable
         text imageFile = enemy:GetImageFile()
         if imageFile = ""
             // Provide a default sprite if no image file is given.
-            imageFile = "Custom Enemy.png"
+            imageFile = "Custom Animal.png"
         end
         Load(GetResourcesPath() + imageFile)
         
