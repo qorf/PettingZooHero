@@ -5,7 +5,7 @@ use Libraries.Interface.Events.BehaviorEvent
 use Libraries.Interface.Item
 use Templates.PettingZooHero.Interface.TreatsRow
 use Templates.PettingZooHero.Interface.TreatOption
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.InterfaceComponents
 
 class TreatRowNavigateBehavior is GameBehavior
@@ -17,7 +17,7 @@ class TreatRowNavigateBehavior is GameBehavior
     
     action Run(BehaviorEvent event)
         if direction = UP
-            Application app = GetApplication()
+            ApplicationWindow app = GetApplication()
             InterfaceComponents components = app:GetInterfaceComponents()
             components:GetPlayerRow():Focus()
             return now

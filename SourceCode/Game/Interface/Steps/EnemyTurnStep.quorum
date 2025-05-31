@@ -2,7 +2,7 @@ package Templates.PettingZooHero.Interface.Steps
 
 use Libraries.Containers.Array
 use Templates.PettingZooHero.Interface.AnimalDrawable
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.AnimalArea
 use Templates.PettingZooHero.Interface.AnimalAreaCell
 use Template.PettingZooHero.Interface.Steps.EndEnemyTurnStep
@@ -30,7 +30,7 @@ number timer = waitTime
             return now
         end
         
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         AnimalArea area = app:GetInterfaceComponents():GetAnimalArea()
         
         repeat while cellY < area:GetGridHeight()

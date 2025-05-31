@@ -1,14 +1,14 @@
 package Templates.PettingZooHero.Interface.Effects
 
 use Libraries.Interface.Behaviors.Behavior
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Libraries.Game.GameStateManager
 use Templates.PettingZooHero.Interface.InterfaceComponents
 
 class GameBehavior is Behavior
-    action GetApplication returns Application
+    action GetApplication returns ApplicationWindow
         GameStateManager manager
-        return cast(Application, manager:GetGame())
+        return cast(ApplicationWindow, manager:GetGame())
     end
     
     action GetInterfaceComponents returns InterfaceComponents

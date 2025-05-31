@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/* The Animal class can be used to make custom animals with user-set HP, speed, images, names, and descriptions.*/
 class Animal
 
     text name = "Custom Animal"

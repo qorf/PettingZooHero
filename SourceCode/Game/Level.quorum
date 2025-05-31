@@ -2,6 +2,8 @@ package Templates.PettingZooHero
 
 use Libraries.Containers.Array
 
+/*Levels are where you build your puzzles and design each stage of your game. You can add treats and animals,
+customize the player's health and budget, change the grid size, adjust the level objectives, and more.*/
 class Level
 
     // The width and height of the top grid where enemies are.

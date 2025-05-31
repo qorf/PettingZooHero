@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Bouncy Balls are treats that don't sate hunger, but push animals 3 spaces and cost 1 budget to use.*/
 class BouncyBall is Treat
 
     on create

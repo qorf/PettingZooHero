@@ -1,6 +1,6 @@
 package Templates.PettingZooHero.Interface.Steps
 
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Libraries.Game.GameStateManager
 
 class Step
@@ -19,9 +19,9 @@ class Step
     
     blueprint action IsFinished returns boolean
     
-action GetApplication returns Application
+action GetApplication returns ApplicationWindow
         GameStateManager manager
-        return cast(Application, manager:GetGame())
+        return cast(ApplicationWindow, manager:GetGame())
     end
     
 end

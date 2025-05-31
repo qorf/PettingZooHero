@@ -9,7 +9,7 @@ use Libraries.Game.Graphics.ColorGroup
 use Libraries.Containers.Array
 use Libraries.Interface.Events.FocusEvent
 use Libraries.Game.GameStateManager
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 
 class TreatOption is Icon, Layout
     
@@ -132,7 +132,7 @@ end
         parent:Control:GainedFocus(event)
         
         GameStateManager manager
-        Application app = cast(Application, manager:GetGame())
+        ApplicationWindow app = cast(ApplicationWindow, manager:GetGame())
         InterfaceComponents components = app:GetInterfaceComponents()
         //components:GetDescriptionArea():SetDescriptionTarget(me)
     end

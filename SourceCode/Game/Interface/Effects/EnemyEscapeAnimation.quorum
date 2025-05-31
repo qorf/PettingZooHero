@@ -4,7 +4,7 @@ use Libraries.Interface.Events.BehaviorEvent
 use Templates.PettingZooHero.Interface.AnimalDrawable
 use Templates.PettingZooHero.Interface.AnimalAreaCell
 use Libraries.Game.Graphics.Color
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 
 class EnemyEscapeAnimation is GameBehavior
     
@@ -28,7 +28,7 @@ class EnemyEscapeAnimation is GameBehavior
         timer = timer + seconds
         number percent = timer / fadeOutTime
         if percent >= 1.0
-            Application app = GetApplication()
+            ApplicationWindow app = GetApplication()
             app:AddPendingRemoval(enemy)
 app:DamagePlayer(1)
         else

@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Strawberries are treats that feed 3 hunger and push 1 space, but cost 2 energy to use.*/
 class Strawberry is Treat
 
     on create

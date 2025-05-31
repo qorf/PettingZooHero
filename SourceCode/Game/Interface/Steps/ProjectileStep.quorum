@@ -6,7 +6,7 @@ use Libraries.Game.GameStateManager
 use Templates.PettingZooHero.Interface.TreatOption
 use Libraries.Game.Graphics.Color
 use Templates.PettingZooHero.Interface.InterfaceComponents
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.Player
 use Templates.PettingZooHero.Interface.Effects.ProjectileWaypoint
 use Templates.PettingZooHero.Interface.AnimalArea
@@ -18,7 +18,7 @@ class ProjectileStep is Step
     Array<Projectile> projectiles
     
     action Create(TreatOption weapon)
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         InterfaceComponents components = app:GetInterfaceComponents()
         
         Player player = components:GetPlayer()
@@ -78,7 +78,7 @@ i = i + 1
     
     action OnStart
 GameStateManager manager
-        Application app = cast(Application, manager:GetGame())
+        ApplicationWindow app = cast(ApplicationWindow, manager:GetGame())
         app:GetSounds():PlayThrowSound()
         integer i = 0
         repeat while i < projectiles:GetSize()

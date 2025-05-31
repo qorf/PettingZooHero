@@ -2,7 +2,7 @@ package Templates.PettingZooHero.Interface.Effects
 
 use Libraries.Interface.Events.BehaviorEvent
 use Libraries.Game.GameStateManager
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.Steps.ProjectileStep
 use Templates.PettingZooHero.Interface.InterfaceComponents
 use Templates.PettingZooHero.Interface.TreatsRow
@@ -13,7 +13,7 @@ use Templates.PettingZooHero.Interface.EnergyBar
 
 class ProjectileFireBehavior is GameBehavior
     action Run(BehaviorEvent event)
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         InterfaceComponents components = GetInterfaceComponents()
         FireButton button = components:GetFireButton()
         

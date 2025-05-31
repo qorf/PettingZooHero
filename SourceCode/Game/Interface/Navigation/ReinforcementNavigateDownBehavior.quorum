@@ -3,7 +3,7 @@ package Templates.PettingZooHero.Interface.Navigation
 use Templates.PettingZooHero.Interface.Effects.GameBehavior
 use Libraries.Interface.Events.BehaviorEvent
 use Templates.PettingZooHero.Interface.ReinforcementRow
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.InterfaceComponents
 use Templates.PettingZooHero.Interface.AnimalArea
 
@@ -15,7 +15,7 @@ class ReinforcementNavigateDownBehavior is GameBehavior
             column = 0
         end
         
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         InterfaceComponents components = app:GetInterfaceComponents()
         AnimalArea area = components:GetAnimalArea()
         if column >= area:GetGridWidth()

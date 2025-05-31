@@ -20,6 +20,7 @@ class DescriptionArea is Control, Layout
     Label descriptionLabel
     FireButton fireButton
     text fontFamily = "Arial"
+    boolean fallbackFonts = false
     
     constant integer DEFAULT_FONT_SIZE = 18
     
@@ -223,7 +224,8 @@ if fireButton:NeedsLayout()
     end
     
     private action CreateBoldLabel returns Label
-        check
+        if not fallbackFonts
+check
 Label label
             FontManager manager
         Font font
@@ -235,15 +237,20 @@ font:LoadFont(name)
 label:SetFontColor(GetFontColor())
         return label
         detect error
-            output "Error creating bold!"
+            // If an error occurs here, we couldn't load the bold font. Fall back to a regular font.
+                fallbackFonts = true
+        end
         end
         
         Label label
+        label:SetSize(GetFontSize() + 2)
+        label:SetFontColor(GetFontColor())
         return label
     end
     
 private action CreateItalicsLabel returns Label
-        check
+        if not fallbackFonts
+check
 Label label
             
 FontManager manager
@@ -256,9 +263,14 @@ FontFamily family = manager:GetFontFamily(fontFamily)
 label:SetFontColor(GetFontColor())
         return label
         detect error
+// If an error occurs here, we couldn't load the bold font. Fall back to a regular font.
+                fallbackFonts = true
+        end
         end
         
         Label label
+label:SetSize(GetFontSize() - 3)
+        label:SetFontColor(GetFontColor())
         return label
     end
     

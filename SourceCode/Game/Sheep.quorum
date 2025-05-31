@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Sheep are the simplest animal in the petting zoo, needing just 1 food and moving 1 space.*/
 class Sheep is Animal
     
     on create

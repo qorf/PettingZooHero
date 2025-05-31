@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Treats are your primary tool for handling animals. This class lets you make custom treats, with your own images, flavor, push, and cost.*/
 class Treat
 
     text name = "Custom Treat"
@@ -10,20 +11,6 @@ class Treat
     integer flavor = 1
     integer push = 0
     integer cost = 0
-
-    /*
-    The treat class provides a template for ways the player can attack. It has a number of properties that can be set to produce different (possibly wacky) results:
-        * Flavor (How much it fills an animal's hunger meter)
-        * Push (How many tiles backwards the enemy is shoved)
-        * Targets (How many enemies does the weapon pass through, or how many times does it bounce if bounce is enabled)
-        * Extra Left-Columns (how many extra columns does this shoot, to the left of the current column)
-        * Extra Right-Columns (how many extra columns does this shoot, to the right of the current column)
-        * Shoots in Column (boolean, on by default. Turn off to make this weapon not shoot in the ship's column)
-        * Shoots diagonal left (boolean, off by default. Turn on to make this weapon shoot a projectile diagonally left from ship)
-        * Shoots diagonal right (same as above, but right instead of left)
-        * Bounce (boolean, off by default. Turn on to make projectile bounce in a new direction after each hit. Diagonal shots always bounce the opposite X direction. Straight shots bounce left or right, or left/right goes up)
-        * Cost (How much energy does it cost to use the weapon)
-    */
 
     action GetFlavor returns integer
         return flavor

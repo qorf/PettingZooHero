@@ -2,12 +2,12 @@ package Templates.PettingZooHero.Interface.Navigation
 
 use Templates.PettingZooHero.Interface.Effects.GameBehavior
 use Libraries.Interface.Events.BehaviorEvent
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.InterfaceComponents
 
 class ActivateFireButtonBehavior is GameBehavior
     action Run(BehaviorEvent event)
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         InterfaceComponents components = app:GetInterfaceComponents()
         components:GetFireButton():Activate()
     end

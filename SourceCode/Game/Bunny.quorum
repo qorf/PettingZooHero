@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Bunnies are animals that move 2 spaces every turn.*/
 class Bunny is Animal
     
     on create

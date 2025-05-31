@@ -2,6 +2,7 @@ package Templates.PettingZooHero
 
 use Libraries.Containers.Array
 
+/*Waves can be used to add extra animals that appear on later turns. You can also use the "add extra" actions in Level to do this instead.*/
 class Wave
 
     Array<Animal> animals

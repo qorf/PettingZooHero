@@ -5,7 +5,7 @@ use Libraries.Containers.Array
 use Templates.PettingZooHero.Interface.AnimalDrawable
 use Libraries.Compute.Vector2
 use Libraries.Game.GameStateManager
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.LayoutConstants
 use Templates.PettingZooHero.Interface.Steps.ProjectileStep
 use Templates.PettingZooHero.Interface.TreatOption
@@ -54,7 +54,7 @@ action GetResourcesPath returns text
                 Hide()
 finished = true
 GameStateManager manager
-Application app = cast(Application, manager:GetGame())
+ApplicationWindow app = cast(ApplicationWindow, manager:GetGame())
                 app:AddPendingRemoval(me)
             else
                 SetScale(newScale, newScale)
@@ -75,7 +75,7 @@ number newCenterX = GetX() + (GetWidth() * GetScaleX()) / 2.0
                 if waypoint:GetAnimal() not= undefined
                     waypoint:GetAnimal():Damage(me)
                     GameStateManager manager
-Application app = cast(Application, manager:GetGame())
+ApplicationWindow app = cast(ApplicationWindow, manager:GetGame())
                     app:GetSounds():PlayEatingSound()
                 end
                 waypoints:RemoveFromFront()

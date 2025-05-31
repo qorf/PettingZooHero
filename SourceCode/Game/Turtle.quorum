@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Turtles are big animals that take 3 food to feed.*/
 class Turtle is Animal
     
     on create

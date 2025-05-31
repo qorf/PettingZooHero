@@ -1,10 +1,10 @@
 package Templates.PettingZooHero.Interface.Effects
 use Libraries.Interface.Events.BehaviorEvent
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 
 class NextLevelBehavior is GameBehavior
     action Run(BehaviorEvent event)
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         app:StartNextLevel()
 app:GetInterfaceComponents():RemoveEventBanner()
     end

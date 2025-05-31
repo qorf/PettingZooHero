@@ -1,5 +1,6 @@
 package Templates.PettingZooHero
 
+/*Apples are a treat that sate 1 hunger, push 1 space, and have no cost.*/
 class Apple is Treat
 
     on create

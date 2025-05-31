@@ -4,7 +4,7 @@ use Templates.PettingZooHero.Interface.Effects.GameBehavior
 use Libraries.Interface.Events.BehaviorEvent
 use Templates.PettingZooHero.Interface.AnimalAreaCell
 use Templates.PettingZooHero.Interface.AnimalArea
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.InterfaceComponents
 use Templates.PettingZooHero.Interface.PlayerRow
 use Templates.PettingZooHero.Interface.PlayerRowCell
@@ -51,7 +51,7 @@ AnimalAreaCell newCell = area:GetCell(cellX, cellY + 1)
             end
         elseif direction = DOWN
             if cellY = 0
-                Application app = GetApplication()
+                ApplicationWindow app = GetApplication()
                 InterfaceComponents components = app:GetInterfaceComponents()
                 PlayerRow row = components:GetPlayerRow()
                 PlayerRowCell playerCell = row:GetCell(cellX)

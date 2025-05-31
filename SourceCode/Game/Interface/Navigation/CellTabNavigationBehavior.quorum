@@ -3,7 +3,7 @@ use Templates.PettingZooHero.Interface.Effects.GameBehavior
 use Libraries.Interface.Events.BehaviorEvent
 use Libraries.Interface.Item
 use Templates.PettingZooHero.Interface.AnimalAreaCell
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.InterfaceComponents
 use Templates.PettingZooHero.Interface.AnimalArea
 use Templates.PettingZooHero.Interface.ReinforcementRow
@@ -13,7 +13,7 @@ class CellTabNavigationBehavior is GameBehavior
     boolean goForward = true
     
     action Run(BehaviorEvent event)
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         InterfaceComponents components = app:GetInterfaceComponents()
         AnimalArea area = components:GetAnimalArea()
         

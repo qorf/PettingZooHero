@@ -1,6 +1,6 @@
 package Templates.PettingZooHero.Interface
 
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Libraries.Containers.Array
 use Libraries.Interface.Controls.Control
 use Libraries.Game.GameStateManager
@@ -21,7 +21,7 @@ HpBar hpBar
     
     EventBanner eventBanner = undefined
     
-    action AddDefaultComponents(Application game)
+    action AddDefaultComponents(ApplicationWindow game)
         LayoutConstants constants
         
 game:Add(background)

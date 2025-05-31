@@ -1,13 +1,13 @@
 package Template.PettingZooHero.Interface.Steps
 
 use Templates.PettingZooHero.Interface.Steps.Step
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 use Templates.PettingZooHero.Interface.FireButton
 
 class EndEnemyTurnStep is Step
     
     action OnStart
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         FireButton button = app:GetInterfaceComponents():GetFireButton()
         button:SetEnabled(true)
         

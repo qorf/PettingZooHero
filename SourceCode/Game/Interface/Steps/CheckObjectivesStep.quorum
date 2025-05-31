@@ -1,10 +1,10 @@
 package Templates.PettingZooHero.Interface.Steps
 
-use Templates.PettingZooHero.Application
+use Templates.PettingZooHero.Interface.ApplicationWindow
 
 class CheckObjectivesStep is Step
     action OnStart
-        Application app = GetApplication()
+        ApplicationWindow app = GetApplication()
         StepQueue steps = app:GetStepQueue()
         if app:IsLevelLost()
             steps:CancelQueuedSteps()

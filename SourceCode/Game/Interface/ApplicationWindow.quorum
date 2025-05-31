@@ -1,0 +1,497 @@
+package Templates.PettingZooHero.Interface
+
+use Libraries.Game.Game
+use Libraries.Containers.Array
+use Templates.PettingZooHero.Interface.HpBar
+use Templates.PettingZooHero.Interface.EnergyBar
+use Templates.PettingZooHero.Interface.LayoutConstants
+use Templates.PettingZooHero.Interface.GameLayout
+use Templates.PettingZooHero.Interface.InterfaceComponents
+use Libraries.Game.DesktopConfiguration
+use Templates.PettingZooHero.Interface.Background
+use Templates.PettingZooHero.Interface.LevelBanner
+use Libraries.Interface.Item2D
+use Templates.PettingZooHero.Interface.Steps.StepQueue
+use Templates.PettingZooHero.Interface.Steps.Step
+use Templates.PettingZooHero.Interface.AnimalDrawable
+use Templates.PettingZooHero.Interface.Steps.CheckObjectivesStep
+use Templates.PettingZooHero.Interface.Steps.EnemyTurnStep
+use Templates.PettingZooHero.Interface.FireButton
+use Templates.PettingZooHero.Interface.AnimalArea
+use Templates.PettingZooHero.Interface.ReinforcementRow
+use Libraries.Game.Graphics.Color
+use Templates.PettingZooHero.Interface.EventBanner
+use Libraries.Game.InputTable
+use Libraries.Game.InputSet
+use Libraries.Interface.Events.KeyboardEvent
+use Templates.PettingZooHero.Interface.Effects.NextLevelBehavior
+use Templates.PettingZooHero.Interface.Effects.FirstLevelBehavior
+use Templates.PettingZooHero.Interface.Navigation.PlayerCellNavigationBehavior
+use Templates.PettingZooHero.Interface.Navigation.PlayerRowNavigationBehavior
+use Templates.PettingZooHero.Interface.Navigation.ActivateFireButtonBehavior
+use Templates.PettingZooHero.Interface.Navigation.AnimalCellEnterBehavior
+use Templates.PettingZooHero.Interface.Navigation.AnimalAreaFocusBehavior
+use Templates.PettingZooHero.Interface.Navigation.AnimalCellNavigationBehavior
+use Templates.PettingZooHero.Interface.Navigation.CellTabNavigationBehavior
+use Templates.PettingZooHero.Interface.Navigation.ReinforcementNavigateDownBehavior
+use Templates.PettingZooHero.Interface.Navigation.TreatRowNavigateBehavior
+use Templates.PettingZooHero.Interface.DescriptionFocusManager
+use Templates.PettingZooHero.Interface.SoundManager
+use Templates.PettingZooHero.Level
+use Templates.PettingZooHero.Animal
+use Templates.PettingZooHero.Wave
+
+class ApplicationWindow is Game
+
+    InterfaceComponents components
+    Array<Level> levels
+    
+    Level currentLevel = undefined
+    integer levelNumber = 1
+    
+    // How many more enemies need to be killed and how many more turns need to be survived to beat the current level.
+    integer remainingKills = 0
+    integer remainingTurns = 0
+    
+    integer currentTurn = 1
+    
+    Array<Item2D> pendingRemovals
+    
+    // Used to control the timing of queued activities, like projectiles and enemy movements.
+    StepQueue stepQueue
+    
+    DescriptionFocusManager focusManager
+    
+    number volume = 1
+    SoundManager sounds
+    
+    on create
+        DesktopConfiguration desktopConfig = GetDesktopConfiguration()
+        desktopConfig:resizable = true
+        
+        SetGameName("Petting Zoo Hero")
+    end
+
+    action CreateGame
+        if levels:IsEmpty()
+            alert("The game doesn't have any levels yet! Use the AddLevel action to add levels for the game.")
+        end
+        
+SetFocusManager(focusManager)
+        sounds:SetMasterVolume(volume)
+        sounds:Load()
+        
+components:AddDefaultComponents(me)
+        StartFirstLevel()
+        
+        GameLayout layout
+        SetLayout(layout)
+        
+SetupInputTables()
+    end
+    
+    private action SetupInputTables
+KeyboardEvent keys
+InputSet keySet
+        keySet:SetKeyboardInput(keys:ANY_KEY)
+        
+        InputSet leftSet
+        InputSet rightSet
+        InputSet upSet
+        InputSet downSet
+        leftSet:SetKeyboardInput(keys:LEFT)
+        rightSet:SetKeyboardInput(keys:RIGHT)
+        upSet:SetKeyboardInput(keys:UP)
+        downSet:SetKeyboardInput(keys:DOWN)
+        
+        InputSet spaceSet
+        InputSet enterSet
+        InputSet numEnterSet
+        spaceSet:SetKeyboardInput(keys:SPACE)
+        enterSet:SetKeyboardInput(keys:ENTER)
+        numEnterSet:SetKeyboardInput(keys:NUMPAD_ENTER)
+        
+        InputSet escapeSet
+        escapeSet:SetKeyboardInput(keys:ESCAPE)
+        
+        InputSet tabSet
+        InputSet shiftTabSet
+        tabSet:SetKeyboardInput(keys:TAB)
+        shiftTabSet:SetKeyboardInput(keys:TAB)
+        shiftTabSet:AddModifier(shiftTabSet:SHIFT)
+        
+        // InputTable used to make event banners progress to the next level.
+        InputTable nextLevelEvent
+        nextLevelEvent:SetIdentifier("NextLevelEvent")
+        NextLevelBehavior nextBehavior
+        nextLevelEvent:Add(keySet, nextBehavior)
+        AddInputTable(nextLevelEvent)
+        
+        InputTable firstLevelEvent
+        firstLevelEvent:SetIdentifier("FirstLevelEvent")
+        FirstLevelBehavior firstBehavior
+        firstLevelEvent:Add(keySet, firstBehavior)
+        AddInputTable(firstLevelEvent)
+        
+        // InputTable used for the PlayerRow and PlayerRowCells.
+        InputTable playerRowTable
+        playerRowTable:SetIdentifier("PlayerRow")
+        PlayerCellNavigationBehavior playerLeftBehavior
+PlayerCellNavigationBehavior playerRightBehavior
+        playerRightBehavior:SetGoLeft(false)
+        playerRowTable:Add(leftSet, playerLeftBehavior)
+        playerRowTable:Add(rightSet, playerRightBehavior)
+        
+        PlayerRowNavigationBehavior playerUpBehavior
+        PlayerRowNavigationBehavior playerDownBehavior
+        playerDownBehavior:SetGoUp(false)
+        playerRowTable:Add(upSet, playerUpBehavior)
+        playerRowTable:Add(downSet, playerDownBehavior)
+        
+        ActivateFireButtonBehavior fireBehavior
+        playerRowTable:Add(spaceSet, fireBehavior)
+        
+        AddInputTable(playerRowTable)
+        
+        // InputTable used for the AnimalArea. Mostly used to get into the cells.
+        InputTable animalAreaTable
+        animalAreaTable:SetIdentifier("AnimalArea")
+        
+        AnimalCellEnterBehavior enterCellBehavior
+        animalAreaTable:Add(enterSet, enterCellBehavior)
+        animalAreaTable:Add(numEnterSet, enterCellBehavior)
+        
+        AddInputTable(animalAreaTable)
+        
+        // InputTable use for the AnimalAreaCells.
+        InputTable animalCellTable
+        animalCellTable:SetIdentifier("AnimalAreaCell")
+        
+        AnimalAreaFocusBehavior animalAreaFocusBehavior
+        animalCellTable:Add(escapeSet, animalAreaFocusBehavior)
+        
+        AnimalCellNavigationBehavior animalLeftBehavior
+AnimalCellNavigationBehavior animalRightBehavior
+AnimalCellNavigationBehavior animalUpBehavior
+AnimalCellNavigationBehavior animalDownBehavior
+        animalLeftBehavior:SetDirection(animalLeftBehavior:LEFT)
+animalRightBehavior:SetDirection(animalLeftBehavior:RIGHT)
+animalUpBehavior:SetDirection(animalLeftBehavior:UP)
+animalDownBehavior:SetDirection(animalLeftBehavior:DOWN)
+        
+        animalCellTable:Add(leftSet, animalLeftBehavior)
+        animalCellTable:Add(rightSet, animalRightBehavior)
+        animalCellTable:Add(upSet, animalUpBehavior)
+        animalCellTable:Add(downSet, animalDownBehavior)
+        
+        CellTabNavigationBehavior cellTabForward
+        CellTabNavigationBehavior cellTabBackward
+        cellTabBackward:SetGoForward(false)
+        
+        animalCellTable:Add(tabSet, cellTabForward)
+        animalCellTable:Add(shiftTabSet, cellTabBackward)
+        
+        AddInputTable(animalCellTable)
+        
+        
+        InputTable reinforcementTable
+        reinforcementTable:SetIdentifier("ReinforcementRow")
+        
+        reinforcementTable:Add(tabSet, cellTabForward)
+        reinforcementTable:Add(shiftTabSet, cellTabBackward)
+        
+        ReinforcementNavigateDownBehavior reinforceDownBehavior
+        reinforcementTable:Add(downSet, reinforceDownBehavior)
+        
+        AddInputTable(reinforcementTable)
+        
+        
+        InputTable treatTable
+        treatTable:SetIdentifier("TreatsRow")
+        
+        treatTable:Add(spaceSet, fireBehavior)
+        
+        TreatRowNavigateBehavior treatNavigateLeft
+TreatRowNavigateBehavior treatNavigateRight
+TreatRowNavigateBehavior treatNavigateUp
+        treatNavigateLeft:SetDirection(treatNavigateLeft:LEFT)
+        treatNavigateRight:SetDirection(treatNavigateRight:RIGHT)
+        treatNavigateUp:SetDirection(treatNavigateUp:UP)
+        
+        treatTable:Add(leftSet, treatNavigateLeft)
+        treatTable:Add(rightSet, treatNavigateRight)
+        treatTable:Add(upSet, treatNavigateUp)
+        
+        AddInputTable(treatTable)
+    end
+    
+    action Update(number seconds)
+        repeat until pendingRemovals:IsEmpty()
+            Item2D item = pendingRemovals:RemoveFromFront()
+if item is AnimalDrawable
+                AnimalDrawable enemy = cast(AnimalDrawable, item)
+                if enemy:GetCell():GetAnimal() = enemy
+enemy:GetCell():SetAnimal(undefined)
+                end
+                AnimalRemoved(enemy)
+            end
+            if item:GetParent() not= undefined
+item:GetParent():Remove(item)
+            else
+Remove(item)
+            end
+        end
+        
+        stepQueue:Update(seconds)
+        sounds:StreamMusic()
+    end
+
+    /*
+    This action runs the application.
+    */
+    action Run
+        SetScreenSize(1000, 1000)
+        StartGame()
+    end
+    
+    action Run(integer width, integer height)
+        SetScreenSize(width, height)
+        StartGame()
+    end
+
+    action AddLevel(Level level)
+        levels:Add(level)
+    end
+
+    action GetInterfaceComponents returns InterfaceComponents
+        return components
+    end
+    
+    action SetCurrentLevel(Level level)
+        if currentLevel not= undefined
+            ClearCurrentLevel()
+        end
+        
+        if level:GetMusic() not= "" and level:GetMusic() not= undefined
+            sounds:PlayMusic(level:GetMusic(), level:GetMusicVolume())
+        end
+        
+components:GetPlayGrid():SetLevel(level)
+        components:GetTreatsRow():LoadTreats(level:GetTreats())
+        
+        Background background = components:GetBackground()
+        if level:GetBackground() not= ""
+            background:Load("Resources/Images/" + level:GetBackground())
+        else
+            background:Load("Resources/Images/Background.png")
+        end
+        
+        HpBar hpBar = components:GetHpBar()
+        EnergyBar energyBar = components:GetEnergyBar()
+        hpBar:SetMaximum(level:GetMaximumHP())
+        energyBar:SetMaximum(level:GetMaximumEnergy())
+        hpBar:SetCurrentValue(level:GetMaximumHP())
+        energyBar:SetCurrentValue(level:GetMaximumEnergy())
+        
+        remainingKills = level:GetRequiredAnimalsStopped()
+        remainingTurns = level:GetRequiredTurnsSurvived()
+        boolean calculateDefaultKills = false
+        if remainingKills <= 0 and remainingTurns <= 0
+            calculateDefaultKills = true
+            Array<Array<Animal>> enemyColumns = level:GetStartingAnimals()
+            integer x = 0
+            repeat while x < enemyColumns:GetSize()
+                Array<Animal> enemies = enemyColumns:Get(x)
+                integer y = 0
+                repeat while y < enemies:GetSize()
+                    if enemies:Get(y) not= undefined
+                        remainingKills = remainingKills + 1
+                    end
+                    y = y + 1
+                end
+                x = x + 1
+            end
+        end
+        
+        FireButton button = components:GetFireButton()
+        button:SetEnabled(true)
+        
+        currentLevel = level
+        currentTurn = 1
+        
+// If there's a wave on turn 2, load the reinforcement row. Also count reinforcements for default kill count.
+Array<Wave> waves = currentLevel:GetWaves()
+        ReinforcementRow row = components:GetReinforcementRow()
+        row:Empty()
+        integer i = 0
+        repeat while i < waves:GetSize()
+            Wave wave = waves:Get(i)
+            if wave:GetTurn() = 2
+                row:LoadWave(wave)
+            end
+            if calculateDefaultKills
+                remainingKills = remainingKills + wave:GetAnimals():GetSize()
+            end
+            i = i + 1
+        end
+        
+LevelBanner banner = components:GetLevelBanner()
+        banner:UpdateLevelInfo(levelNumber, remainingKills, remainingTurns)
+        banner:Focus()
+    end
+    
+    private action ClearCurrentLevel
+        // Perform any additional clean-up necessary here.
+    end
+
+    action GetCurrentLevel returns Level
+        return currentLevel
+    end
+    
+    action HasNextLevel returns boolean
+        return levels:GetFromEnd() not= currentLevel
+    end
+    
+    action StartNextLevel
+        levelNumber = levelNumber + 1
+        if levelNumber > levels:GetSize()
+            levelNumber = 1
+        end
+        SetCurrentLevel(levels:Get(levelNumber - 1))
+    end
+    
+    action StartFirstLevel
+        levelNumber = 1
+        SetCurrentLevel(levels:Get(0))
+    end
+    
+    action AddPendingRemoval(Item2D item)
+        pendingRemovals:Add(item)
+    end
+    
+    action AddStep(Step step)
+        stepQueue:Add(step)
+    end
+    
+    action GetStepQueue returns StepQueue
+        return stepQueue
+    end
+    
+    action DamagePlayer(integer amount)
+        HpBar hp = components:GetHpBar()
+        hp:SetCurrentValue(hp:GetCurrentValue() - amount)
+    end
+    
+    action AnimalRemoved(AnimalDrawable enemy)
+        remainingKills = remainingKills - 1
+        
+LevelBanner banner = components:GetLevelBanner()
+        banner:UpdateLevelInfo(levelNumber, remainingKills, remainingTurns)
+    end
+    
+    action IsLevelWon returns boolean
+        return remainingKills <= 0 and remainingTurns <= 0
+    end
+    
+    action IsLevelLost returns boolean
+        HpBar hp = components:GetHpBar()
+        return hp:GetCurrentValue() <= 0
+    end
+    
+    action QueueEnemyTurnSteps
+        CheckObjectivesStep checkStep
+        AddStep(checkStep)
+        
+        EnemyTurnStep turnStep
+        AddStep(turnStep)
+    end
+    
+    action OnLevelComplete
+        text title = ""
+        text subtitle = ""
+        text inputGroup = ""
+        if HasNextLevel()
+            title = "LEVEL CLEAR!"
+            subtitle = "Press any key to continue."
+            inputGroup = "NextLevelEvent"
+        else
+            title = "GAME COMPLETE!"
+            subtitle = "Press any key to restart the game."
+            inputGroup = "FirstLevelEvent"
+        end
+        
+        Color deepSkyBlue
+        deepSkyBlue:SetColor(105 / 255.0, 180 / 255.0, 255 / 255.0, 1)
+        Color white = deepSkyBlue:White()
+        EventBanner banner = components:AddEventBanner(title, subtitle, deepSkyBlue, white)
+        banner:SetInputGroup(inputGroup)
+        banner:Focus()
+        
+        sounds:StopMusic()
+        sounds:PlayVictorySound()
+    end
+    
+action OnLevelLost
+        Color gray
+        gray:SetColor(185 / 255.0, 185 / 255.0, 185 / 255.0, 1)
+        Color black = gray:Black()
+        EventBanner banner = components:AddEventBanner("GAME OVER", "Press any key to start a new game!", gray, black)
+        banner:SetInputGroup("FirstLevelEvent")
+        banner:Focus()
+        
+        sounds:StopMusic()
+        sounds:PlayGameOver()
+    end
+    
+    action OnEnemyTurnEnd
+        currentTurn = currentTurn + 1
+        remainingTurns = remainingTurns - 1
+        
+LevelBanner banner = components:GetLevelBanner()
+banner:UpdateLevelInfo(levelNumber, remainingKills, remainingTurns)
+        
+        // Spawn any extra animals that appear on this turn.
+        Array<Wave> waves = currentLevel:GetWaves()
+        Wave currentWave = undefined
+        Wave nextWave = undefined
+        integer i = 0
+        repeat while i < waves:GetSize()
+            Wave wave = waves:Get(i)
+            if wave:GetTurn() = currentTurn
+                currentWave = wave
+            elseif wave:GetTurn() = currentTurn + 1
+                nextWave = wave
+            end
+            i = i + 1
+        end
+
+        if currentWave not= undefined
+            AnimalArea area = components:GetAnimalArea()
+            area:SpawnNextWave()
+        end
+        ReinforcementRow row = components:GetReinforcementRow()
+        if nextWave not= undefined
+            row:LoadWave(nextWave)
+        else
+            row:Empty()
+        end
+        
+    end
+
+    action GetCurrentTurn returns integer
+        return currentTurn
+    end
+
+    action GetSounds returns SoundManager
+        return sounds
+    end
+
+    action GetVolume returns number
+        return volume
+    end
+
+    action SetVolume(number volume)
+        me:volume = volume
+    end
+
+end
